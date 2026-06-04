@@ -21,14 +21,6 @@ Filament ver. 5
 - this help you to run migrtion & seeder `php artisan migrate:fresh --seed`
 - this system use Vite, if you made any change in front-end, you have to run `npm run build` in terminal
 
-## laravel-translations
-
-this repo use [laravel-translations](https://github.com/MohmmedAshraf/laravel-translations) package
-
-- make sure to run `php artisan translations:import`
-- To access the translations UI, visit /translations in your browser.
-- If you are using a production environment, you will need to create owner user first. To do so, run the following command: `php artisan translations:contributor`
-
 ## BackEnd Support
 
 If you need any help please contact us +201005222120 or [alfker3@gmail.com](mailto:alfker3@gmail.com).
