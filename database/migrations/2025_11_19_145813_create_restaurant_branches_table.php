@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('restaurant_branches', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('page_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('address')->nullable();
+            $table->string('image')->nullable();
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+            $table->boolean('main')->default(false);
+            $table->boolean('status')->default(true);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('restaurant_branches');
+    }
+};
