@@ -82,6 +82,7 @@ class SocialLoginController extends Controller
 
                     // Mark email as verified for social registration to prevent verification mail route errors
                     $user->email_verified_at = now();
+                    $user->last_login_at = now();
                     $user->save();
 
                     event(new Registered($user));
@@ -90,8 +91,8 @@ class SocialLoginController extends Controller
                     $this->sendWelcomeEmail($user, $generatedPassword);
                 }
             } else {
-                // Update last visit
-                $user->update(['updated_at' => Carbon::now()]);
+                // Update last visit quietly to preserve updated_at
+                $user->updateQuietly(['last_login_at' => now()]);
             }
 
             $user->load(['activeSubscription.subscriptionPlan']);

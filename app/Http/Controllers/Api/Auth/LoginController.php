@@ -33,8 +33,8 @@ class LoginController extends Controller
         $user = Auth::user();
         $user->load(['activeSubscription.subscriptionPlan']);
 
-        // Revoke all previous tokens for this device (optional: single-session enforcement)
-        // $user->tokens()->delete();
+        // Update user's last login date quietly to preserve updated_at
+        $user->updateQuietly(['last_login_at' => now()]);
 
         // Create a new Sanctum token
         // $token = $user->createToken('api-token')->plainTextToken;
