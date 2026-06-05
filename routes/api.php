@@ -1,0 +1,130 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\Auth\LogoutController;
+use App\Http\Controllers\Api\Auth\RegisterController;
+use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\Auth\VerifyEmailController;
+use App\Http\Controllers\Api\Auth\SocialLoginController;
+use App\Http\Controllers\Api\PagesController;
+use App\Http\Controllers\Api\CodeController;
+use App\Http\Controllers\Api\LinksController;
+use App\Http\Controllers\Api\QrcodesController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SubscriptionPlansController;
+use App\Http\Controllers\Api\FaqsController;
+
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Auth Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('auth')->group(function () {
+    // Guest
+    Route::post('login', LoginController::class)->name('api.auth.login');
+    Route::post('register', RegisterController::class)->name('api.auth.register');
+    Route::post('social-login', [SocialLoginController::class, 'socialLogin'])->name('api.auth.social-login');
+    Route::post('forgot-password', ForgotPasswordController::class)->name('api.auth.forgot-password');
+    Route::post('reset-password', ResetPasswordController::class)->name('api.auth.reset-password');
+
+    // Password Reset (GET link from email)
+    Route::get('reset-password/{token}', function (Request $request, $token) {
+        return response()->json([
+            'status'  => true,
+            'message' => 'Reset password token retrieved.',
+            'token'   => $token,
+            'email'   => $request->query('email'),
+        ]);
+    })->name('password.reset');
+
+    // Email Verification (signed link)
+    Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    // Authenticated
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::delete('logout', LogoutController::class)->name('api.auth.logout');
+
+        // Resend Verification Email
+        Route::post('/email/verification-notification', [VerifyEmailController::class, 'resend'])
+            ->middleware('throttle:6,1')
+            ->name('verification.send');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+// Unified public route for resolving any short code (Link or QR Code)
+Route::get('/r/{code}', [CodeController::class, 'resolve'])->name('api.resolve');
+
+Route::post('/codes/report', [CodeController::class, 'report'])->middleware('throttle:5,1')->name('api.codes.report');
+
+// Subscription Plans
+Route::get('/subscription-plans', [SubscriptionPlansController::class, 'index'])->name('api.subscription-plans.index');
+Route::get('/subscription-plans/{id}', [SubscriptionPlansController::class, 'show'])->name('api.subscription-plans.show');
+
+// FAQs
+Route::get('/faqs', [FaqsController::class, 'index'])->name('api.faqs.index');
+
+// Pages
+Route::get('/p/{slug}', [PagesController::class, 'showPublic'])->name('api.pages.showPublic');
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Protected Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Current authenticated user
+    Route::get('/user', [ProfileController::class, 'index'])->name('api.user');
+    Route::put('/user/profile', [ProfileController::class, 'updateProfile'])->name('api.user.profile');
+    Route::put('/user/password', [ProfileController::class, 'updatePassword'])->name('api.user.password');
+
+    // Pages
+    Route::prefix('pages')->group(function () {
+        Route::get('/',          [PagesController::class, 'index'])->name('api.pages.index');
+        Route::get('/{page}',    [PagesController::class, 'show'])->name('api.pages.show');
+    });
+
+    // Links
+    Route::prefix('links')->group(function () {
+        Route::get('/',          [LinksController::class, 'index'])->name('api.links.index');
+        Route::get('/{link}',    [LinksController::class, 'show'])->name('api.links.show');
+        Route::post('/',         [LinksController::class, 'store'])->name('api.links.store');
+        Route::put('/{link}',    [LinksController::class, 'update'])->name('api.links.update');
+        Route::delete('/{link}', [LinksController::class, 'destroy'])->name('api.links.destroy');
+    });
+
+    //QrCodes
+    Route::prefix('qrcodes')->group(function () {
+        Route::get('/',          [QrcodesController::class, 'index'])->name('api.qrcodes.index');
+        Route::get('/{qrcode}',    [QrcodesController::class, 'show'])->name('api.qrcodes.show');
+        Route::post('/', [QrcodesController::class, 'store'])->name('api.qrcodes.store');
+        Route::put('/{qrcode}', [QrcodesController::class, 'update'])->name('api.qrcodes.update');
+        Route::delete('/{qrcode}', [QrcodesController::class, 'destroy'])->name('api.qrcodes.destroy');
+    });
+
+});

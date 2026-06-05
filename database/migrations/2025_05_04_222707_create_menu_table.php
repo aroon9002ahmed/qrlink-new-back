@@ -1,6 +1,7 @@
 <?php
 
-use Kalnoy\Nestedset\NestedSet;
+use Aimeos\Nestedset\NestedSet;
+
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->integer('order_view')->default(0);
             // $table->unsignedBigInteger('parent_id')->nullable();
             NestedSet::columns($table);
+            NestedSet::columnsDepth($table);
             $table->integer('location')->default(1);
             $table->boolean('status')->default(1);
             $table->integer('created_by')->default(1);

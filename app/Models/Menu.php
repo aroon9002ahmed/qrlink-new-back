@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Kalnoy\Nestedset\NodeTrait;
+use Aimeos\Nestedset\NodeTrait;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
