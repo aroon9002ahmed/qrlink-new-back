@@ -19,6 +19,7 @@ class UserTableSeeder extends Seeder
             'name' => 'Ahmed Saad',
             'email' => 'alfker3@gmail.com',
             'password' => Hash::make('passworduser'),
+            'phone' => '+201005222130',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
