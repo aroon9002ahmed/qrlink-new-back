@@ -7,9 +7,11 @@ use App\Http\Requests\Api\Auth\RegisterRequest;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Auth\Events\Registered;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -50,7 +52,9 @@ class RegisterController extends Controller
             ]);
         }
 
-        event(new Registered($user));
+
+        // Send welcome email
+        $this->sendWelcomeEmail($user, $request->password);
 
         // Eager load subscription relationship for response consistency
         $user->load(['activeSubscription.subscriptionPlan']);
@@ -78,5 +82,29 @@ class RegisterController extends Controller
                 ] : null,
             ],
         ], 201);
+    }
+
+    /**
+     * Send a welcome email with login credentials to the newly registered user.
+     */
+    private function sendWelcomeEmail($user, string $password): void
+    {
+        $emailData = [
+            'subject'   => 'Welcome to ' . config('app.name') . '!',
+            'name'      => $user->name,
+            'email'     => $user->email,
+            'password'  => $password,
+            'login_url' => url('/login'),
+        ];
+
+        try {
+            Mail::send('email.UserInformation', $emailData, function ($message) use ($user, $emailData) {
+                $message->to($user->email)
+                    ->subject($emailData['subject']);
+            });
+            Log::info('Welcome email sent to: ' . $user->email);
+        } catch (Exception $e) {
+            Log::error('Failed to send welcome email: ' . $e->getMessage());
+        }
     }
 }

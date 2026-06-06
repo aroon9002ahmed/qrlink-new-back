@@ -85,8 +85,6 @@ class SocialLoginController extends Controller
                     $user->last_login_at = now();
                     $user->save();
 
-                    event(new Registered($user));
-
                     // Send welcome email with credentials
                     $this->sendWelcomeEmail($user, $generatedPassword);
                 }
@@ -120,7 +118,6 @@ class SocialLoginController extends Controller
                     ] : null,
                 ],
             ], 200);
-
         } catch (Exception $e) {
             Log::error('Social login API error: ' . $e->getMessage());
             return response()->json([
