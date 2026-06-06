@@ -1,188 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
     <title>{{ $subject }}</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f9;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333333;
-        }
 
-        .wrapper {
-            width: 100%;
-            padding: 40px 16px;
-            background-color: #f4f6f9;
-        }
+    <!--[if mso]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
 
-        .container {
-            max-width: 560px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
+    <style type="text/css">
+        /* Reset */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
 
-        .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            padding: 40px 32px 32px;
-            text-align: center;
-        }
+        /* Client resets */
+        body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }
 
-        .header h1 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-        }
-
-        .header p {
-            margin: 8px 0 0;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .body {
-            padding: 36px 32px;
-        }
-
-        .greeting {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin: 0 0 12px;
-        }
-
-        .text {
-            font-size: 15px;
-            line-height: 1.7;
-            color: #555555;
-            margin: 0 0 24px;
-        }
-
-        .credentials-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px 24px;
-            margin: 0 0 28px;
-        }
-
-        .credentials-box .label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
-
-        .credentials-box .value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1a1a2e;
-            word-break: break-all;
-        }
-
-        .credentials-box .row {
-            margin-bottom: 16px;
-        }
-
-        .credentials-box .row:last-child {
-            margin-bottom: 0;
-        }
-
-        .divider {
-            height: 1px;
-            background-color: #e2e8f0;
-            margin: 0 0 24px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 13px 28px;
-            background: linear-gradient(135deg, #0f3460, #16213e);
-            color: #ffffff !important;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: 0.2px;
-        }
-
-        .footer {
-            padding: 24px 32px;
-            background-color: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .footer p {
-            font-size: 13px;
-            color: #94a3b8;
-            margin: 0;
-            line-height: 1.6;
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-wrapper { width: 100% !important; }
+            .email-container { width: 100% !important; }
+            .stack-column { display: block !important; width: 100% !important; }
         }
     </style>
 </head>
 
-<body>
-    <div class="wrapper">
-        <div class="container">
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; width: 100%;">
 
-            {{-- Header --}}
-            <div class="header">
-                <h1>{{ config('app.name') }}</h1>
-                <p>Welcome to your account</p>
-            </div>
+    {{-- Outer wrapper --}}
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f1f5f9;">
+        <tr>
+            <td style="padding: 40px 16px;">
 
-            {{-- Body --}}
-            <div class="body">
-                <p class="greeting">Hi {{ $name }}, welcome aboard! 👋</p>
-                <p class="text">
-                    Your account has been created successfully. Here are your login details:
-                </p>
+                {{-- Email container --}}
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="560" align="center" style="margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0;" class="email-container">
 
-                {{-- Credentials --}}
-                <div class="credentials-box">
-                    <div class="row">
-                        <div class="label">Email Address</div>
-                        <div class="value">{{ $email }}</div>
-                    </div>
-                    @isset($password)
-                        <div class="row">
-                            <div class="label">Password</div>
-                            <div class="value">**************</div>
-                        </div>
-                    @endisset
-                </div>
+                    {{-- ========== HEADER ========== --}}
+                    <!--[if mso]>
+                    <tr>
+                        <td style="background-color: #0f3460; padding: 0;">
+                            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:560px;">
+                                <v:fill type="gradient" color="#1a1a2e" color2="#0f3460" angle="135"/>
+                                <v:textbox inset="0,0,0,0">
+                    <![endif]-->
+                    <tr>
+                        <td align="center" style="background-color: #0f3460; padding: 40px 32px 32px;">
+                            <!--[if mso]><table role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="center"><![endif]-->
+                            <p style="margin: 0; font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">
+                                {{ config('app.name') }}
+                            </p>
+                            <p style="margin: 8px 0 0; font-family: Arial, sans-serif; font-size: 13px; color: #93c5fd; line-height: 1.4;">
+                                Welcome to your account
+                            </p>
+                            <!--[if mso]></td></tr></table><![endif]-->
+                        </td>
+                    </tr>
+                    <!--[if mso]>
+                                </v:textbox>
+                            </v:rect>
+                        </td>
+                    </tr>
+                    <![endif]-->
 
-                <div class="divider"></div>
+                    {{-- ========== BODY ========== --}}
+                    <tr>
+                        <td style="padding: 36px 32px 28px; font-family: Arial, sans-serif;">
 
-                <p class="text">
-                    Click the button below to log in to your account and start exploring.
-                </p>
+                            {{-- Greeting --}}
+                            <p style="margin: 0 0 12px; font-size: 18px; font-weight: bold; color: #1e293b; line-height: 1.4;">
+                                Hi {{ $name }}, welcome aboard! 👋
+                            </p>
 
-                <a href="{{ $login_url }}" class="btn">Log In to Your Account</a>
-            </div>
+                            {{-- Intro text --}}
+                            <p style="margin: 0 0 28px; font-size: 15px; color: #64748b; line-height: 1.7;">
+                                Your account has been created successfully. Here are your login details:
+                            </p>
 
-            {{-- Footer --}}
-            <div class="footer">
-                <p>
-                    If you did not create an account, no further action is required.<br>
-                    &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
-                </p>
-            </div>
+                            {{-- Credentials box --}}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 28px;">
+                                <tr>
+                                    <td style="padding: 20px 24px;">
 
-        </div>
-    </div>
+                                        {{-- Email row --}}
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td>
+                                                    <p style="margin: 0 0 4px; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
+                                                        Email Address
+                                                    </p>
+                                                    <p style="margin: 0; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; color: #1e293b; word-break: break-all;">
+                                                        {{ $email }}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        @isset($password)
+                                        {{-- Divider --}}
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: 16px 0;">
+                                            <tr>
+                                                <td style="height: 1px; background-color: #e2e8f0; font-size: 0; line-height: 0;">&nbsp;</td>
+                                            </tr>
+                                        </table>
+
+                                        {{-- Password row --}}
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td>
+                                                    <p style="margin: 0 0 4px; font-family: Arial, sans-serif; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">
+                                                        Password
+                                                    </p>
+                                                    <p style="margin: 0; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; color: #1e293b; letter-spacing: 2px;">
+                                                        **************
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        @endisset
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {{-- Divider --}}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
+                                <tr>
+                                    <td style="height: 1px; background-color: #e2e8f0; font-size: 0; line-height: 0;">&nbsp;</td>
+                                </tr>
+                            </table>
+
+                            {{-- CTA text --}}
+                            <p style="margin: 0 0 24px; font-family: Arial, sans-serif; font-size: 15px; color: #64748b; line-height: 1.7;">
+                                Click the button below to log in to your account and start exploring.
+                            </p>
+
+                            {{-- CTA Button --}}
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td style="border-radius: 6px; background-color: #0f3460;">
+                                        <!--[if mso]>
+                                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $login_url }}" style="height:46px;v-text-anchor:middle;width:200px;" arcsize="13%" stroke="f" fillcolor="#0f3460">
+                                            <w:anchorlock/>
+                                            <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;">
+                                                Log In to Your Account
+                                            </center>
+                                        </v:roundrect>
+                                        <![endif]-->
+                                        <!--[if !mso]><!-->
+                                        <a href="{{ $login_url }}"
+                                           target="_blank"
+                                           style="display: inline-block; padding: 13px 28px; font-family: Arial, sans-serif; font-size: 15px; font-weight: bold; color: #ffffff; text-decoration: none; border-radius: 6px; background-color: #0f3460; mso-hide: all;">
+                                            Log In to Your Account
+                                        </a>
+                                        <!--<![endif]-->
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    {{-- ========== FOOTER ========== --}}
+                    <tr>
+                        <td style="padding: 24px 32px; background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0; font-family: Arial, sans-serif; font-size: 12px; color: #94a3b8; line-height: 1.6; text-align: center;">
+                                If you did not create an account, no further action is required.<br>
+                                &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                {{-- End email container --}}
+
+            </td>
+        </tr>
+    </table>
+    {{-- End outer wrapper --}}
+
 </body>
 
 </html>
