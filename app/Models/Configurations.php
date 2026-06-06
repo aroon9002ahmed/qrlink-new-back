@@ -15,9 +15,21 @@ class Configurations extends Model
         'slug',
         'note',
         'status',
+        'inputType',
         'created_by'
     ];
     public $translatable  = ['name'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($config) {
+            if (empty($config->created_by)) {
+                $config->created_by = auth('admin')->id() ?? auth()->id() ?? 1;
+            }
+        });
+    }
 
     public function Admin()
     {
