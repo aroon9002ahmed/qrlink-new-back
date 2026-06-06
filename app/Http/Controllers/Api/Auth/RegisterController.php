@@ -94,7 +94,7 @@ class RegisterController extends Controller
             'name'      => $user->name,
             'email'     => $user->email,
             'password'  => $password,
-            'login_url' => url('/login'),
+            'login_url' => env('APP_URL') . '/login',
         ];
 
         try {
