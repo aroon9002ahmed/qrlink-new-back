@@ -31,6 +31,8 @@ class UserSubscriptionResource extends JsonResource
                     'id'                  => $this->subscriptionPlan->id,
                     'name'                => $this->subscriptionPlan->getTranslations('name'),
                     'slug'                => $this->subscriptionPlan->slug,
+                    'max_qrcodes'        => $this->subscriptionPlan->max_qrcodes,
+                    'max_links'           => $this->subscriptionPlan->max_links,
                     'max_pages'           => $this->subscriptionPlan->max_pages,
                     'max_items'           => $this->subscriptionPlan->max_items,
                     'max_blocks_per_page' => $this->subscriptionPlan->max_blocks_per_page,
