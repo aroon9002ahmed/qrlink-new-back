@@ -16,6 +16,8 @@ class ShortCodesTable
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label("#"),
                 TextColumn::make('code')
                     ->searchable(),
                 TextColumn::make('codeable_type')
@@ -35,7 +37,9 @@ class ShortCodesTable
                 TextColumn::make('user.name')
                     ->label('User')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->icon('heroicon-m-user')
+                    ->url(fn($record) => $record->user_id ? \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record->user_id]) : null),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

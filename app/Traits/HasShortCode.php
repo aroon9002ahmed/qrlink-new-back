@@ -41,6 +41,7 @@ trait HasShortCode
                 'code'          => ShortCode::generateUnique(8),
                 'codeable_id'   => $model->id,
                 'codeable_type' => get_class($model),
+                'user_id'       => $model->user_id,
                 'clicks'        => 0,
             ]);
         });

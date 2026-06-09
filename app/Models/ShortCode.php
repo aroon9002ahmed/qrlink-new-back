@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 class ShortCode extends Model
@@ -13,6 +14,7 @@ class ShortCode extends Model
         'code',
         'codeable_id',
         'codeable_type',
+        'user_id',
         'clicks',
     ];
 
@@ -22,6 +24,14 @@ class ShortCode extends Model
     public function codeable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the user that owns this short code.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     /**
