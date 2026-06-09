@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\QrcodesController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SubscriptionPlansController;
 use App\Http\Controllers\Api\FaqsController;
+use App\Http\Controllers\Api\ConfigurationController;
 
 
 /*
@@ -34,6 +35,7 @@ use App\Http\Controllers\Api\FaqsController;
 | Auth Routes
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('auth')->group(function () {
     // Guest
     Route::post('login', LoginController::class)->name('api.auth.login');
@@ -85,6 +87,9 @@ Route::get('/subscription-plans/{id}', [SubscriptionPlansController::class, 'sho
 // FAQs
 Route::get('/faqs', [FaqsController::class, 'index'])->name('api.faqs.index');
 
+//Configurations
+Route::get('/configurations/{slug?}', [ConfigurationController::class, 'index'])->name('api.configurations.index');
+
 // Pages
 Route::get('/p/{slug}', [PagesController::class, 'showPublic'])->name('api.pages.showPublic');
 
@@ -126,5 +131,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{qrcode}', [QrcodesController::class, 'update'])->name('api.qrcodes.update');
         Route::delete('/{qrcode}', [QrcodesController::class, 'destroy'])->name('api.qrcodes.destroy');
     });
-
 });
