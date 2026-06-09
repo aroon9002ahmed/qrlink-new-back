@@ -35,7 +35,7 @@ class StatsOverview extends StatsOverviewWidget
             Stat::make('Total users', User::count())
                 ->description('Total users in the system')
                 ->icon('heroicon-m-user-group')
-                ->color('warning'),
+                ->color('danger'),
         ];
     }
 }
