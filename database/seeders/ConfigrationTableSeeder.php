@@ -64,8 +64,8 @@ class ConfigrationTableSeeder extends Seeder
             [
                 'slug' => 'currency',
                 'name' => [
-                    'en' => 'EGP',
-                    'ar' => 'ج.م'
+                    'en' => 'USD',
+                    'ar' => 'دولار'
                 ],
                 'created_by' => 1
             ],
