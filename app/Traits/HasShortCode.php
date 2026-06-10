@@ -3,7 +3,9 @@
 namespace App\Traits;
 
 use App\Models\ShortCode;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Notifications\ShortCodeCreated;
 
 trait HasShortCode
 {
@@ -37,13 +39,20 @@ trait HasShortCode
     protected static function bootHasShortCode(): void
     {
         static::created(function ($model) {
+            $code = ShortCode::generateUnique(8);
+
             ShortCode::create([
-                'code'          => ShortCode::generateUnique(8),
+                'code'          => $code,
                 'codeable_id'   => $model->id,
                 'codeable_type' => get_class($model),
                 'user_id'       => $model->user_id,
                 'clicks'        => 0,
             ]);
+
+            //send notifications to user about creating short code
+            if ($model->user_id && $user = ($model->user ?? User::find($model->user_id))) {
+                $user->notify(new ShortCodeCreated($code, get_class($model), $model->id));
+            }
         });
 
         static::deleting(function ($model) {
