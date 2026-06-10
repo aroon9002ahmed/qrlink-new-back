@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SubscriptionPlansController;
 use App\Http\Controllers\Api\FaqsController;
 use App\Http\Controllers\Api\ConfigurationController;
+use App\Http\Controllers\Api\NotificationsController;
 
 
 /*
@@ -107,6 +108,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [ProfileController::class, 'index'])->name('api.user');
     Route::put('/user/profile', [ProfileController::class, 'updateProfile'])->name('api.user.profile');
     Route::put('/user/password', [ProfileController::class, 'updatePassword'])->name('api.user.password');
+
+    // Notifications
+    Route::prefix('notifications')->group(function () {
+        Route::get('/',             [NotificationsController::class, 'index'])->name('api.notifications.index');
+        Route::post('/{id}/read',   [NotificationsController::class, 'markAsRead'])->name('api.notifications.read');
+        Route::post('/read-all',    [NotificationsController::class, 'markAllAsRead'])->name('api.notifications.read-all');
+        Route::delete('/{id}',      [NotificationsController::class, 'destroy'])->name('api.notifications.destroy');
+        Route::delete('/',          [NotificationsController::class, 'clearAll'])->name('api.notifications.clear-all');
+    });
 
     // Pages
     Route::prefix('pages')->group(function () {
