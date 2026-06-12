@@ -20,10 +20,12 @@ class LinkResource extends JsonResource
             'originalUrl' => $this->original_url,
             'title'       => $this->title,
             'clicks'      => $this->clicks,        // via HasShortCode accessor
-            'isActive'    => $this->is_active,
-            'expiresAt'   => $this->expires_at,
-            'createdAt'   => $this->when($request->routeIs('api.links.show'), fn() => $this->created_at?->toIso8601String()),
-            'updatedAt'   => $this->when($request->routeIs('api.links.show'), fn() => $this->updated_at?->toIso8601String()),
+            'isActive'     => $this->is_active,
+            'expiresAt'    => $this->expires_at,
+            'titleShow'    => $this->title_show,
+            'fastRedirect' => $this->fast_redirect,
+            'createdAt'    => $this->when($request->routeIs('api.links.show'), fn() => $this->created_at?->toIso8601String()),
+            'updatedAt'    => $this->when($request->routeIs('api.links.show'), fn() => $this->updated_at?->toIso8601String()),
         ];
     }
 }

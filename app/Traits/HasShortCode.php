@@ -51,7 +51,9 @@ trait HasShortCode
 
             //send notifications to user about creating short code
             if ($model->user_id && $user = ($model->user ?? User::find($model->user_id))) {
-                $user->notify(new ShortCodeCreated($code, get_class($model), $model->id));
+                if (env('APP_ENV') === 'production') {
+                    $user->notify(new ShortCodeCreated($code, get_class($model), $model->id));
+                }
             }
         });
 

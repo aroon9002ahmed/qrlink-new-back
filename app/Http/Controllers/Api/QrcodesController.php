@@ -63,10 +63,12 @@ class QrcodesController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'title'        => 'nullable|string|max:255',
-            'url'          => 'required_without:original_url|nullable|url|max:2048',
-            'original_url' => 'required_without:url|nullable|url|max:2048',
-            'is_active'    => 'nullable|boolean',
+            'title'         => 'nullable|string|max:255',
+            'url'           => 'required_without:original_url|nullable|url|max:2048',
+            'original_url'  => 'required_without:url|nullable|url|max:2048',
+            'is_active'     => 'nullable|boolean',
+            'title_show'    => 'nullable|boolean',
+            'fast_redirect' => 'nullable|boolean',
         ]);
 
         $url = $request->input('original_url') ?? $request->input('url') ?? $request->input('originalUrl');
@@ -75,10 +77,12 @@ class QrcodesController extends Controller
 
         // ShortCode is generated automatically by HasShortCode boot
         $qrcode = Qrcode::create([
-            'user_id'      => $request->user()->id,
-            'title'        => $request->input('title'),
-            'original_url' => $url,
-            'is_active'    => $request->input('is_active', true),
+            'user_id'       => $request->user()->id,
+            'title'         => $request->input('title'),
+            'original_url'  => $url,
+            'is_active'     => $request->input('is_active', true),
+            'title_show'    => $request->input('title_show', true),
+            'fast_redirect' => $request->input('fast_redirect', false),
         ]);
 
         $qrcode->load('shortCodeRelation');
@@ -104,11 +108,13 @@ class QrcodesController extends Controller
         }
 
         $request->validate([
-            'title'        => 'nullable|string|max:255',
-            'url'          => 'sometimes|required_without:original_url|url|max:2048',
-            'original_url' => 'sometimes|required_without:url|url|max:2048',
-            'is_active'    => 'nullable|boolean',
-            'expiresAt'    => 'nullable|date',
+            'title'         => 'nullable|string|max:255',
+            'url'           => 'sometimes|required_without:original_url|url|max:2048',
+            'original_url'  => 'sometimes|required_without:url|url|max:2048',
+            'is_active'     => 'nullable|boolean',
+            'expiresAt'     => 'nullable|date',
+            'title_show'    => 'nullable|boolean',
+            'fast_redirect' => 'nullable|boolean',
         ]);
 
         $url = $qrcode->original_url;
@@ -119,10 +125,12 @@ class QrcodesController extends Controller
         $this->checkDomainBlacklist($url);
 
         $qrcode->update([
-            'title'        => $request->input('title', $qrcode->title),
-            'original_url' => $url,
-            'is_active'    => $request->input('is_active', $qrcode->is_active),
-            'expires_at'   => $request->input('expiresAt', $qrcode->expires_at),
+            'title'         => $request->input('title', $qrcode->title),
+            'original_url'  => $url,
+            'is_active'     => $request->input('is_active', $qrcode->is_active),
+            'expires_at'    => $request->input('expiresAt', $qrcode->expires_at),
+            'title_show'    => $request->input('title_show', $qrcode->title_show),
+            'fast_redirect' => $request->input('fast_redirect', $qrcode->fast_redirect),
         ]);
 
         return response()->json([

@@ -69,11 +69,13 @@ class LinksController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'title'        => 'nullable|string|max:255',
-            'original_url' => 'required_without:url|url|max:2048',
-            'url'          => 'required_without:original_url|url|max:2048',
-            'is_active'    => 'nullable|boolean',
-            'expiresAt'    => 'nullable|date',
+            'title'         => 'nullable|string|max:255',
+            'original_url'  => 'required_without:url|url|max:2048',
+            'url'           => 'required_without:original_url|url|max:2048',
+            'is_active'     => 'nullable|boolean',
+            'expiresAt'     => 'nullable|date',
+            'title_show'    => 'nullable|boolean',
+            'fast_redirect' => 'nullable|boolean',
         ]);
 
         $originalUrl = $request->input('original_url') ?: $request->input('url');
@@ -93,12 +95,14 @@ class LinksController extends Controller
 
         // ShortCode is generated automatically by HasShortCode boot
         $link = Link::create([
-            'user_id'      => $request->user()->id,
-            'title'        => $request->input('title') ?: $request->input('name'),
-            'original_url' => $originalUrl,
-            'url_hash'     => $urlHash,
-            'expires_at'   => $request->input('expiresAt', null),
-            'is_active'    => $request->input('is_active', true),
+            'user_id'       => $request->user()->id,
+            'title'         => $request->input('title') ?: $request->input('name'),
+            'original_url'  => $originalUrl,
+            'url_hash'      => $urlHash,
+            'expires_at'    => $request->input('expiresAt', null),
+            'is_active'     => $request->input('is_active', true),
+            'title_show'    => $request->input('title_show', true),
+            'fast_redirect' => $request->input('fast_redirect', false),
         ]);
 
         $link->load('shortCodeRelation');
@@ -126,11 +130,13 @@ class LinksController extends Controller
         }
 
         $request->validate([
-            'title'        => 'nullable|string|max:255',
-            'original_url' => 'required_without:url|url|max:2048',
-            'url'          => 'required_without:original_url|url|max:2048',
-            'is_active'    => 'nullable|boolean',
-            'expiresAt'    => 'nullable|date',
+            'title'         => 'nullable|string|max:255',
+            'original_url'  => 'required_without:url|url|max:2048',
+            'url'           => 'required_without:original_url|url|max:2048',
+            'is_active'     => 'nullable|boolean',
+            'expiresAt'     => 'nullable|date',
+            'title_show'    => 'nullable|boolean',
+            'fast_redirect' => 'nullable|boolean',
         ]);
 
         $originalUrl = $request->input('original_url') ?: $request->input('url');
@@ -153,11 +159,13 @@ class LinksController extends Controller
         }
 
         $link->update([
-            'title'        => $request->input('title') ?: $request->input('name') ?: $link->title,
-            'original_url' => $originalUrl,
-            'url_hash'     => $urlHash,
-            'expires_at'   => $request->input('expiresAt', $link->expires_at),
-            'is_active'    => $request->input('is_active', $link->is_active),
+            'title'         => $request->input('title') ?: $request->input('name') ?: $link->title,
+            'original_url'  => $originalUrl,
+            'url_hash'      => $urlHash,
+            'expires_at'    => $request->input('expiresAt', $link->expires_at),
+            'is_active'     => $request->input('is_active', $link->is_active),
+            'title_show'    => $request->input('title_show', $link->title_show),
+            'fast_redirect' => $request->input('fast_redirect', $link->fast_redirect),
         ]);
 
         return response()->json([

@@ -22,10 +22,12 @@ class QrCodeResource extends JsonResource
             'originalUrl'  => $this->original_url,
             'original_url' => $this->original_url,
             'totalScans'   => $this->clicks,        // via HasShortCode accessor (unified clicks)
-            'isActive'    => $this->is_active,
-            'expiresAt'   => $this->expires_at,
-            'createdAt'   => $this->when($request->routeIs('api.qrcodes.show'), fn() => $this->created_at?->toIso8601String()),
-            'updatedAt'   => $this->when($request->routeIs('api.qrcodes.show'), fn() => $this->updated_at?->toIso8601String()),
+            'isActive'     => $this->is_active,
+            'expiresAt'    => $this->expires_at,
+            'titleShow'    => $this->title_show,
+            'fastRedirect' => $this->fast_redirect,
+            'createdAt'    => $this->when($request->routeIs('api.qrcodes.show'), fn() => $this->created_at?->toIso8601String()),
+            'updatedAt'    => $this->when($request->routeIs('api.qrcodes.show'), fn() => $this->updated_at?->toIso8601String()),
         ];
     }
 }

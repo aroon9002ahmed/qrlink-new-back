@@ -16,6 +16,14 @@ class Qrcode extends Model
         'is_active',
         'expires_at',
         'user_id',
+        'title_show',
+        'fast_redirect',
+    ];
+
+    protected $casts = [
+        'title_show' => 'boolean',
+        'fast_redirect' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function user(): BelongsTo

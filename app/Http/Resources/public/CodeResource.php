@@ -20,8 +20,10 @@ class CodeResource extends JsonResource
             'originalUrl' => $this->original_url,
             'title'       => $this->title,
             'clicks'      => $this->clicks,        // via HasShortCode accessor
-            'isActive'    => $this->is_active,
-            'expiresAt'   => $this->expires_at,
+            'isActive'     => $this->is_active,
+            'expiresAt'    => $this->expires_at,
+            'titleShow'    => $this->title_show,
+            'fastRedirect' => $this->fast_redirect,
         ];
     }
 }
