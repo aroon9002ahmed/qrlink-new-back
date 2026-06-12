@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordRequestNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -107,5 +108,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function qrcodes(): HasMany
     {
         return $this->hasMany(Qrcode::class);
+    }
+
+    /**
+     * Send the password reset notification using our custom premium email template.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $frontendUrl = rtrim(config('app.frontend_url', 'http://localhost:3000'), '/');
+        $resetUrl = $frontendUrl . '/auth/reset-password?token=' . $token . '&email=' . urlencode($this->getEmailForPasswordReset());
+
+        $this->notify(new ResetPasswordRequestNotification($resetUrl));
     }
 }
