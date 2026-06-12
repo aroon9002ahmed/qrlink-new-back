@@ -25,7 +25,7 @@ class PasswordResetSuccessNotification extends Notification
     {
         $appName = config('app.name', 'QR Tree');
         $userName = $notifiable->name ?? 'there';
-        $loginUrl = rtrim(config('app.frontend_url', 'http://localhost:3000'), '/') . '/auth/login';
+        $loginUrl = rtrim(env('APP_URL', 'http://localhost:3000'), '/') . '/auth/login';
         $year = date('Y');
 
         return (new MailMessage())
