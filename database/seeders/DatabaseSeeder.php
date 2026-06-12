@@ -41,5 +41,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RestaurantOrdersSeeder::class);
         $this->call(LinkTableSeeder::class);
         $this->call(QrcodeSeeder::class);
+        $this->call(BlacklistTableSeeder::class);
     }
 }

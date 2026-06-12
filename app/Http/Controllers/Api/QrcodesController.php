@@ -9,9 +9,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\QrCodeResource;
+use App\Traits\ChecksBlacklist;
 
 class QrcodesController extends Controller
 {
+    use ChecksBlacklist;
     /**
      * GET /api/qrcodes
      */
@@ -69,6 +71,8 @@ class QrcodesController extends Controller
 
         $url = $request->input('original_url') ?? $request->input('url') ?? $request->input('originalUrl');
 
+        $this->checkDomainBlacklist($url);
+
         // ShortCode is generated automatically by HasShortCode boot
         $qrcode = Qrcode::create([
             'user_id'      => $request->user()->id,
@@ -111,6 +115,8 @@ class QrcodesController extends Controller
         if ($request->has('original_url') || $request->has('url') || $request->has('originalUrl')) {
             $url = $request->input('original_url') ?? $request->input('url') ?? $request->input('originalUrl');
         }
+
+        $this->checkDomainBlacklist($url);
 
         $qrcode->update([
             'title'        => $request->input('title', $qrcode->title),

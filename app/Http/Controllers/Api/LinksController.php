@@ -9,9 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\LinkResource;
+use App\Traits\ChecksBlacklist;
 
 class LinksController extends Controller
 {
+    use ChecksBlacklist;
     /**
      * Get a list of all links belonging to the authenticated user.
      *
@@ -75,6 +77,9 @@ class LinksController extends Controller
         ]);
 
         $originalUrl = $request->input('original_url') ?: $request->input('url');
+
+        $this->checkDomainBlacklist($originalUrl);
+
         $urlHash = hash('sha256', $originalUrl);
 
         // Check if user already has a shortened link for this URL
@@ -129,6 +134,9 @@ class LinksController extends Controller
         ]);
 
         $originalUrl = $request->input('original_url') ?: $request->input('url');
+
+        $this->checkDomainBlacklist($originalUrl);
+
         $urlHash = hash('sha256', $originalUrl);
 
         // Check for duplicate URL (excluding current link)
