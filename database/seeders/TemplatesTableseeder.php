@@ -62,7 +62,24 @@ class TemplatesTableseeder extends Seeder
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
+            [
+                'name' => [
+                    'en' => 'Blue Profile',
+                    'ar' => 'ملف شخصي أزرق'
+                ],
+                'slug' => 'blue-profile',
+                'description' => [
+                    'en' => 'A beautiful and serene profile page template.',
+                    'ar' => 'قالب صفحة ملف شخصي جميل وهادئ.'
+                ],
+                'preview_image' => 'templates/profile2.png',
+                'page_type_id' => 1, // Assuming 1 is the ID for 'profile' in page_types table
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
         ];
 
         foreach ($templates as $template) {
