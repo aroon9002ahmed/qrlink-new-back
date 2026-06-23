@@ -42,12 +42,12 @@ class PageTableSeeder extends Seeder
         ]);
 
         Page::create([
-            'user_id' => 2,
-            'title' => 'Demo restaurant',
-            'slug' => 'demo-restaurant-2',
-            'description' => 'Demo restaurant description',
-            'template_id' => 3,
-            'type' => 2, // Assuming 'restaurant' has ID 2 in page_types table
+            'user_id' => 1,
+            'title' => 'Demo profile',
+            'slug' => 'demo-profile',
+            'description' => 'Demo profile description',
+            'template_id' => 4, // Template id 1 is Blue Profile
+            'type' => 1, // Assuming 'profile' has ID 1 in page_types table
             'language' => 'en',
             'status' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),

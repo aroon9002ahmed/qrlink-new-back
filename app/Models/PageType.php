@@ -15,9 +15,22 @@ class PageType extends Model
         'slug',        // slug للاستخدام في الurls أو الربط
         'description', // وصف مختصر لنوع الصفحة
         'icon',        // أيقونة اختيارية (لو حابب تعرضها في الـ dashboard)
+        'status',      // الحالة (نشط أم غير نشط)
     ];
 
     public $translatable = ['name', 'description'];
+
+    protected static function booted()
+    {
+        static::deleting(function ($pageType) {
+            if ($pageType->icon) {
+                $path = str_starts_with($pageType->icon, 'images/pageTypes/cache/')
+                    ? $pageType->icon
+                    : "images/pageTypes/cache/{$pageType->icon}";
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+            }
+        });
+    }
 
     /*
      * العلاقات
