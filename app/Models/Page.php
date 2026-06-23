@@ -25,6 +25,7 @@ class Page extends Model
         'template_id',
         'settings',
         'language',
+        'copyright',
         'status',
     ];
 

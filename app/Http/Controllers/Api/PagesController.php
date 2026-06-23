@@ -327,6 +327,7 @@ class PagesController extends Controller
             'title'        => 'sometimes|required|string|max:255',
             'description'  => 'sometimes|nullable|string',
             'language'     => 'sometimes|required|string|in:ar,en',
+            'copyright'    => 'sometimes|required|boolean',
             'template_id'  => 'sometimes|nullable|integer|exists:templates,id',
             'settings'     => 'sometimes|nullable|string',
             'image_path'   => 'sometimes|nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
@@ -344,6 +345,9 @@ class PagesController extends Controller
         }
         if ($request->has('language')) {
             $updateData['language'] = $validated['language'];
+        }
+        if ($request->has('copyright')) {
+            $updateData['copyright'] = filter_var($request->input('copyright'), FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
         }
         if ($request->has('template_id')) {
             $updateData['template_id'] = $validated['template_id'];
