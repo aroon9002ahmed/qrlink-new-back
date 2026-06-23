@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\SubscriptionPlansController;
 use App\Http\Controllers\Api\FaqsController;
 use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\NotificationsController;
+use App\Http\Controllers\Api\TemplatesController;
+use App\Http\Controllers\Api\PageTypesController;
+
 
 
 /*
@@ -94,6 +97,15 @@ Route::get('/configurations/{slug?}', [ConfigurationController::class, 'index'])
 // Pages
 Route::get('/p/{slug}', [PagesController::class, 'showPublic'])->name('api.pages.showPublic');
 
+// Templates (Public)
+Route::get('/templates/{id}', [TemplatesController::class, 'show'])->name('api.templates.show');
+
+// Page Types (Public)
+Route::get('/page-types', [PageTypesController::class, 'index'])->name('api.page-types.index');
+Route::get('/page-types/{id}', [PageTypesController::class, 'show'])->name('api.page-types.show');
+
+
+
 
 
 
@@ -122,6 +134,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('pages')->group(function () {
         Route::get('/',          [PagesController::class, 'index'])->name('api.pages.index');
         Route::get('/{page}',    [PagesController::class, 'show'])->name('api.pages.show');
+        Route::patch('/{page}',    [PagesController::class, 'update'])->name('api.pages.update');
+        Route::put('/{page}/status', [PagesController::class, 'updateStatus'])->name('api.pages.updateStatus');
     });
 
     // Links
@@ -140,5 +154,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [QrcodesController::class, 'store'])->name('api.qrcodes.store');
         Route::put('/{qrcode}', [QrcodesController::class, 'update'])->name('api.qrcodes.update');
         Route::delete('/{qrcode}', [QrcodesController::class, 'destroy'])->name('api.qrcodes.destroy');
+    });
+
+    // Templates (Protected)
+    Route::prefix('templates')->group(function () {
+        Route::get('/',          [TemplatesController::class, 'index'])->name('api.templates.index');
+        Route::get('/page-type/{page_type_id}', [TemplatesController::class, 'byPageType'])->name('api.templates.byPageType');
     });
 });
