@@ -23,6 +23,7 @@ class PageResource extends JsonResource
             'image_path'  => $this->image_path,
             'status'      => $this->status,
             'language'    => $this->language,
+            'copyright'   => $this->copyright,
 
             // Type information (PageType relation)
             'type' => $this->whenLoaded('pageType', fn() => [
@@ -30,7 +31,11 @@ class PageResource extends JsonResource
                 'slug'        => $this->pageType->slug,
                 'name'        => $this->pageType->name,
                 'description' => $this->pageType->description,
-                'icon'        => Storage::disk('public')->url('images/pageTypes/cache/' . $this->pageType->icon),
+                'icon'        => $this->pageType->icon
+                    ? (str_starts_with($this->pageType->icon, 'images/pageTypes/cache/')
+                        ? Storage::disk('public')->url($this->pageType->icon)
+                        : Storage::disk('public')->url('images/pageTypes/cache/' . $this->pageType->icon))
+                    : null,
             ], $this->type), // fallback to raw type value if not loaded
 
             // Template information
@@ -38,7 +43,11 @@ class PageResource extends JsonResource
                 'id'            => $this->template->id,
                 'name'          => $this->template->name,
                 'description'   => $this->template->description,
-                'preview_image' => Storage::disk('public')->url('images/templates/cache/' . $this->template->preview_image),
+                'preview_image' => $this->template->preview_image
+                    ? (str_starts_with($this->template->preview_image, 'images/templates/cache/')
+                        ? Storage::disk('public')->url($this->template->preview_image)
+                        : Storage::disk('public')->url('images/templates/cache/' . $this->template->preview_image))
+                    : null,
                 'is_active'     => $this->template->is_active,
             ]),
 

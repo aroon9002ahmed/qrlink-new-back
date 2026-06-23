@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
 use App\Models\RestaurantMenuCategory;
 use App\Models\Page;
+use Illuminate\Support\Facades\Storage;
 
 class PagesController extends Controller
 {
@@ -174,13 +175,13 @@ class PagesController extends Controller
     }
 
     /**
- * Get a single public page by ID (without authentication).
- *
- * GET /api/p/{slug}
- */
-public function showPublic(Request $request, string $slug): JsonResponse
-{
-    $page = Page::with(['pageType', 'template'])
+     * Get a single public page by ID (without authentication).
+     *
+     * GET /api/p/{slug}
+     */
+    public function showPublic(Request $request, string $slug): JsonResponse
+    {
+        $page = Page::with(['pageType', 'template'])
             ->where('slug', $slug)
             ->first();
 
@@ -300,6 +301,125 @@ public function showPublic(Request $request, string $slug): JsonResponse
                 'restaurantMenu' => $restaurantMenu ?: null,
             ]
         ], 200);
-}
+    }
 
+    /**
+     * Update an existing page.
+     *
+     * PUT/POST /api/pages/{page}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $pageId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+
+        if (!$page) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Page not found.',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'title'        => 'sometimes|required|string|max:255',
+            'description'  => 'sometimes|nullable|string',
+            'language'     => 'sometimes|required|string|in:ar,en',
+            'template_id'  => 'sometimes|nullable|integer|exists:templates,id',
+            'settings'     => 'sometimes|nullable|string',
+            'image_path'   => 'sometimes|nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'remove_image' => 'sometimes|nullable|in:0,1',
+            'status'       => 'sometimes|required|boolean',
+        ]);
+
+        $updateData = [];
+
+        if ($request->has('title')) {
+            $updateData['title'] = $validated['title'];
+        }
+        if ($request->has('description')) {
+            $updateData['description'] = $validated['description'];
+        }
+        if ($request->has('language')) {
+            $updateData['language'] = $validated['language'];
+        }
+        if ($request->has('template_id')) {
+            $updateData['template_id'] = $validated['template_id'];
+        }
+        if ($request->has('status')) {
+            $updateData['status'] = filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        }
+        if ($request->has('settings')) {
+            $settingsVal = $request->input('settings');
+            $updateData['settings'] = is_string($settingsVal)
+                ? json_decode($settingsVal, true)
+                : $settingsVal;
+        }
+
+        // Handle image deletion
+        if ($request->input('remove_image') === '1') {
+            if ($page->image_path) {
+                Storage::disk('public')->delete($page->image_path);
+            }
+            $updateData['image_path'] = null;
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image_path')) {
+            if ($page->image_path) {
+                Storage::disk('public')->delete($page->image_path);
+            }
+
+            $file = $request->file('image_path');
+            $filename = $page->slug . '_' . $page->id . '_' . now()->format('Ymd_His') . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('upload/logo', $filename, 'public');
+            $updateData['image_path'] = $path;
+        }
+
+        $page->update($updateData);
+
+        return response()->json([
+            'status' => true,
+            'data'   => new PageResource($page->load(['pageType', 'template'])),
+        ], 200);
+    }
+
+    /**
+     * Update only the page status.
+     *
+     * PUT /api/pages/{page}/status
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $pageId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateStatus(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+
+        if (!$page) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Page not found.',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|boolean',
+        ]);
+
+        $status = filter_var($request->input('status'), FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+
+        $page->update([
+            'status' => $status,
+        ]);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Page status updated successfully.',
+            'data'    => new PageResource($page->load(['pageType', 'template'])),
+        ], 200);
+    }
 }
