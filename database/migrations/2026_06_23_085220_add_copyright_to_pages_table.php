@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pages', function (Blueprint $table) {
-            $table->boolean('copyright')->default(0)->after('language');
+            $table->boolean('copyright')->default(1)->after('language'); // 1 = true [copyright is active], 0 = false [copyright is inactive]
         });
     }
 
