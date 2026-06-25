@@ -138,6 +138,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{page}/status', [PagesController::class, 'updateStatus'])->name('api.pages.updateStatus');
     });
 
+    // Social Platforms & Links
+    Route::get('/social-platforms', [PagesController::class, 'socialPlatforms'])->name('api.social-platforms');
+    Route::post('/pages/{page}/social-links', [PagesController::class, 'updateSocialLinks'])->name('api.pages.updateSocialLinks');
+
     // Links
     Route::prefix('links')->group(function () {
         Route::get('/',          [LinksController::class, 'index'])->name('api.links.index');

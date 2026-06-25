@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
 use App\Models\RestaurantMenuCategory;
 use App\Models\Page;
+use App\Models\SocialPlatform;
 use Illuminate\Support\Facades\Storage;
 
 class PagesController extends Controller
@@ -424,6 +425,80 @@ class PagesController extends Controller
             'status'  => true,
             'message' => 'Page status updated successfully.',
             'data'    => new PageResource($page->load(['pageType', 'template'])),
+        ], 200);
+    }
+
+    /**
+     * Get all social platforms.
+     */
+    public function socialPlatforms(): JsonResponse
+    {
+        $platforms = SocialPlatform::all();
+        return response()->json([
+            'status' => true,
+            'data'   => $platforms,
+        ], 200);
+    }
+
+    /**
+     * Sync update all social links for a page.
+     */
+    public function updateSocialLinks(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+
+        if (!$page) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Page not found.',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'links' => 'present|array',
+            'links.*.platform_id' => 'required|integer|exists:social_platforms,id',
+            'links.*.value' => 'required|string|max:255',
+            'links.*.sort_order' => 'nullable|integer'
+        ]);
+
+        // Wrap operations in transaction to prevent partial state on database failure
+        \Illuminate\Support\Facades\DB::transaction(function () use ($page, $validated) {
+            // Delete existing social links
+            $page->socialLinks()->delete();
+
+            // Insert updated social links
+            foreach ($validated['links'] as $index => $linkData) {
+                $page->socialLinks()->create([
+                    'platform_id' => $linkData['platform_id'],
+                    'value'       => $linkData['value'],
+                    'sort_order'  => $linkData['sort_order'] ?? ($index + 1),
+                ]);
+            }
+        });
+
+        // Get the updated social links collection
+        $socialLinks = $page->socialLinks()
+            ->with('socialPlatform')
+            ->get()
+            ->map(function ($link) {
+                return [
+                    'id'            => $link->id,
+                    'page_id'       => $link->page_id,
+                    'platform_id'   => $link->platform_id,
+                    'platform_name' => $link->socialPlatform?->name,
+                    'platform_icon' => $link->socialPlatform?->icon,
+                    'color'         => $link->socialPlatform?->color,
+                    'value'         => $link->value,
+                    'sort_order'    => $link->sort_order,
+                    'created_at'    => $link->created_at,
+                    'updated_at'    => $link->updated_at,
+                ];
+            });
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Social links updated successfully.',
+            'data'    => $socialLinks,
         ], 200);
     }
 }
