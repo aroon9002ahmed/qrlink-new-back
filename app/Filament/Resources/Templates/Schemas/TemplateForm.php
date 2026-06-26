@@ -55,6 +55,7 @@ class TemplateForm
                 TextInput::make('slug')
                     ->required(),
                 FileUpload::make('preview_image')
+                    ->helperText('Recommended size: 484x971 px')
                     ->disk('public')
                     ->directory('images/templates/cache')
                     ->visibility('public')
@@ -65,23 +66,23 @@ class TemplateForm
                         $dateTime = date('Ymd_His');
                         $extension = $file->getClientOriginalExtension();
                         $filename = "{$slug}_{$id}_{$dateTime}.{$extension}";
-                        
+
                         // Extract filename from old record if exists, and delete old files
                         if ($record && $record->preview_image) {
                             $oldFilename = basename($record->preview_image);
-                            
+
                             // Delete from cache
                             Storage::disk('public')->delete("images/templates/cache/{$oldFilename}");
-                            
+
                             // Delete from thumbnail
                             Storage::disk('public')->delete("images/templates/thumbnail/{$oldFilename}");
                         }
-                        
+
                         $mainPath = 'images/templates/cache/' . $filename;
                         $tempPath = $file->getRealPath();
-                        
+
                         self::resizeAndSaveImage($tempPath, $filename);
-                        
+
                         return $mainPath;
                     }),
                 Select::make('page_type_id')
@@ -99,9 +100,9 @@ class TemplateForm
         if (!$imageInfo) {
             return;
         }
-        
+
         $mime = $imageInfo['mime'];
-        
+
         switch ($mime) {
             case 'image/jpeg':
             case 'image/jpg':
@@ -120,11 +121,11 @@ class TemplateForm
                 $source = null;
                 break;
         }
-        
+
         if (!$source) {
             return;
         }
-        
+
         $sizes = [
             'main' => [
                 'width' => 414,
@@ -141,31 +142,36 @@ class TemplateForm
                 ]
             ]
         ];
-        
+
         foreach ($sizes as $config) {
             $targetWidth = $config['width'];
             $targetHeight = $config['height'];
-            
+
             $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
-            
+
             if ($mime === 'image/png' || $mime === 'image/webp') {
                 imagealphablending($targetImage, false);
                 imagesavealpha($targetImage, true);
                 $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
                 imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
             }
-            
+
             $origWidth = imagesx($source);
             $origHeight = imagesy($source);
-            
+
             imagecopyresampled(
                 $targetImage,
                 $source,
-                0, 0, 0, 0,
-                $targetWidth, $targetHeight,
-                $origWidth, $origHeight
+                0,
+                0,
+                0,
+                0,
+                $targetWidth,
+                $targetHeight,
+                $origWidth,
+                $origHeight
             );
-            
+
             ob_start();
             switch ($mime) {
                 case 'image/jpeg':
@@ -184,7 +190,7 @@ class TemplateForm
             }
             $imageData = ob_get_clean();
             imagedestroy($targetImage);
-            
+
             foreach ($config['paths'] as $path) {
                 $directory = dirname($path);
                 if (!Storage::disk('public')->exists($directory)) {
@@ -193,8 +199,7 @@ class TemplateForm
                 Storage::disk('public')->put($path, $imageData, 'public');
             }
         }
-        
+
         imagedestroy($source);
     }
 }
-
