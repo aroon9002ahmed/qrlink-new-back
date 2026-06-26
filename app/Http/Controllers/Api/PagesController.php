@@ -379,7 +379,8 @@ class PagesController extends Controller
 
             $file = $request->file('image_path');
             $filename = $page->slug . '_' . $page->id . '_' . now()->format('Ymd_His') . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('upload/logo', $filename, 'public');
+            $path = 'upload/logo/' . $filename;
+            $this->resizeAndSaveImage($file->getRealPath(), $path, 118, 118);
             $updateData['image_path'] = $path;
         }
 
@@ -500,5 +501,92 @@ class PagesController extends Controller
             'message' => 'Social links updated successfully.',
             'data'    => $socialLinks,
         ], 200);
+    }
+
+    /**
+     * Resize and save image using GD library.
+     */
+    protected function resizeAndSaveImage(string $tempPath, string $targetPath, int $targetWidth, int $targetHeight): void
+    {
+        $imageInfo = @getimagesize($tempPath);
+        if (!$imageInfo) {
+            return;
+        }
+
+        $mime = $imageInfo['mime'];
+
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                $source = @imagecreatefromjpeg($tempPath);
+                break;
+            case 'image/png':
+                $source = @imagecreatefrompng($tempPath);
+                break;
+            case 'image/webp':
+                $source = @imagecreatefromwebp($tempPath);
+                break;
+            case 'image/gif':
+                $source = @imagecreatefromgif($tempPath);
+                break;
+            default:
+                $source = null;
+                break;
+        }
+
+        if (!$source) {
+            return;
+        }
+
+        $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
+
+        if ($mime === 'image/png' || $mime === 'image/webp') {
+            imagealphablending($targetImage, false);
+            imagesavealpha($targetImage, true);
+            $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
+            imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
+        }
+
+        $origWidth = imagesx($source);
+        $origHeight = imagesy($source);
+
+        imagecopyresampled(
+            $targetImage,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $targetWidth,
+            $targetHeight,
+            $origWidth,
+            $origHeight
+        );
+
+        ob_start();
+        switch ($mime) {
+            case 'image/jpeg':
+            case 'image/jpg':
+                imagejpeg($targetImage, null, 90);
+                break;
+            case 'image/png':
+                imagepng($targetImage, null, 6);
+                break;
+            case 'image/webp':
+                imagewebp($targetImage, null, 85);
+                break;
+            case 'image/gif':
+                imagegif($targetImage);
+                break;
+        }
+        $imageData = ob_get_clean();
+        imagedestroy($targetImage);
+        imagedestroy($source);
+
+        $directory = dirname($targetPath);
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+        Storage::disk('public')->put($targetPath, $imageData, 'public');
     }
 }
