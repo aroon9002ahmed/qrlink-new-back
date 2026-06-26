@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\NotificationsController;
 use App\Http\Controllers\Api\TemplatesController;
 use App\Http\Controllers\Api\PageTypesController;
+use App\Http\Controllers\Api\BannersController;
 
 
 
@@ -141,6 +142,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Social Platforms & Links
     Route::get('/social-platforms', [PagesController::class, 'socialPlatforms'])->name('api.social-platforms');
     Route::post('/pages/{page}/social-links', [PagesController::class, 'updateSocialLinks'])->name('api.pages.updateSocialLinks');
+
+    // Banners
+    Route::prefix('pages/{page}/banners')->group(function () {
+        Route::get('/',          [BannersController::class, 'index'])->name('api.banners.index');
+        Route::post('/',         [BannersController::class, 'store'])->name('api.banners.store');
+        Route::post('/reorder',  [BannersController::class, 'reorder'])->name('api.banners.reorder');
+        Route::match(['post', 'put'], '/{banner}', [BannersController::class, 'update'])->name('api.banners.update');
+        Route::delete('/{banner}', [BannersController::class, 'destroy'])->name('api.banners.destroy');
+    });
 
     // Links
     Route::prefix('links')->group(function () {
