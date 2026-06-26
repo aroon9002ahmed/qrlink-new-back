@@ -13,7 +13,13 @@ class SocialPlatform extends Model
         'name',
         'icon',
         'type',
-        'base_url'
+        'base_url',
+        'color',
+        'status'
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
 
     /**
