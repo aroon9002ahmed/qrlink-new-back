@@ -433,7 +433,7 @@ class PagesController extends Controller
      */
     public function socialPlatforms(): JsonResponse
     {
-        $platforms = SocialPlatform::all();
+        $platforms = SocialPlatform::where('status', true)->get();
         return response()->json([
             'status' => true,
             'data'   => $platforms,

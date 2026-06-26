@@ -60,4 +60,11 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ]);
     }
+
+    public function boot(): void
+    {
+        \Filament\Support\Facades\FilamentAsset::register([
+            \Filament\Support\Assets\Css::make('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'),
+        ]);
+    }
 }
