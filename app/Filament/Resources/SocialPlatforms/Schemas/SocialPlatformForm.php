@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SocialPlatforms\Schemas;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -18,7 +19,8 @@ class SocialPlatformForm
                     ->required()
                     ->maxLength(255)
                     ->placeholder('e.g. Facebook, WhatsApp'),
-
+                Textarea::make('description')
+                    ->placeholder('e.g. WhatsApp: 9665xxxxxxxx, Facebook: facebook.com/page, Location: google.com/maps/...'),
                 Select::make('icon')
                     ->label('Icon')
                     ->options([

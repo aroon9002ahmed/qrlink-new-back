@@ -11,6 +11,7 @@ class SocialPlatform extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'icon',
         'type',
         'base_url',
