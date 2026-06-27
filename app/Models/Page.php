@@ -61,6 +61,11 @@ class Page extends Model
         return $this->hasMany(Banner::class)->orderBy('position');
     }
 
+    public function branches(): HasMany
+    {
+        return $this->hasMany(RestaurantBranch::class);
+    }
+
     public function blocks(): HasMany
     {
         return $this->hasMany(Block::class)->orderBy('position');

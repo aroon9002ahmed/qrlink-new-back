@@ -126,6 +126,21 @@ class PagesController extends Controller
 
             $restaurantMenu = [
                 'restaurantSettings' => $formattedSettings,
+                'branches' => $page->branches()
+                    ->where('status', true)
+                    ->orderBy('main', 'desc')
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function ($branch) {
+                        return [
+                            'id'        => $branch->id,
+                            'name'      => $branch->name,
+                            'address'   => $branch->address,
+                            'latitude'  => $branch->latitude,
+                            'longitude' => $branch->longitude,
+                            'main'      => (bool) $branch->main,
+                        ];
+                    })->toArray(),
                 'categories' => $restaurantCategories->map(function ($category) {
                     return [
                         'category_id' => $category->id,
@@ -255,6 +270,21 @@ class PagesController extends Controller
 
             $restaurantMenu = [
                 'restaurantSettings' => $formattedSettings,
+                'branches' => $page->branches()
+                    ->where('status', true)
+                    ->orderBy('main', 'desc')
+                    ->orderBy('name')
+                    ->get()
+                    ->map(function ($branch) {
+                        return [
+                            'id'        => $branch->id,
+                            'name'      => $branch->name,
+                            'address'   => $branch->address,
+                            'latitude'  => $branch->latitude,
+                            'longitude' => $branch->longitude,
+                            'main'      => (bool) $branch->main,
+                        ];
+                    })->toArray(),
                 'categories' => $restaurantCategories->map(function ($category) {
                     return [
                         'category_id' => $category->id,

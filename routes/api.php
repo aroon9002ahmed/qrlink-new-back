@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\NotificationsController;
 use App\Http\Controllers\Api\TemplatesController;
 use App\Http\Controllers\Api\PageTypesController;
 use App\Http\Controllers\Api\BannersController;
+use App\Http\Controllers\Api\BranchesController;
 
 
 
@@ -150,6 +151,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/reorder',  [BannersController::class, 'reorder'])->name('api.banners.reorder');
         Route::match(['post', 'put'], '/{banner}', [BannersController::class, 'update'])->name('api.banners.update');
         Route::delete('/{banner}', [BannersController::class, 'destroy'])->name('api.banners.destroy');
+    });
+
+    // Branches
+    Route::prefix('pages/{page}/branches')->group(function () {
+        Route::get('/',          [BranchesController::class, 'index'])->name('api.branches.index');
+        Route::post('/',         [BranchesController::class, 'store'])->name('api.branches.store');
+        Route::match(['post', 'put'], '/{branch}', [BranchesController::class, 'update'])->name('api.branches.update');
+        Route::delete('/{branch}', [BranchesController::class, 'destroy'])->name('api.branches.destroy');
     });
 
     // Links
