@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\TemplatesController;
 use App\Http\Controllers\Api\PageTypesController;
 use App\Http\Controllers\Api\BannersController;
 use App\Http\Controllers\Api\BranchesController;
+use App\Http\Controllers\Api\RestaurantMenuController;
 
 
 
@@ -159,6 +160,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/',         [BranchesController::class, 'store'])->name('api.branches.store');
         Route::match(['post', 'put'], '/{branch}', [BranchesController::class, 'update'])->name('api.branches.update');
         Route::delete('/{branch}', [BranchesController::class, 'destroy'])->name('api.branches.destroy');
+    });
+
+    // Restaurant Menu Categories & Items
+    Route::prefix('pages/{page}/categories')->group(function () {
+        Route::get('/', [RestaurantMenuController::class, 'indexCategories']);
+        Route::post('/', [RestaurantMenuController::class, 'storeCategory']);
+        Route::post('/reorder', [RestaurantMenuController::class, 'reorderCategories']);
+        Route::put('/{category}', [RestaurantMenuController::class, 'updateCategory']);
+        Route::delete('/{category}', [RestaurantMenuController::class, 'destroyCategory']);
+    });
+
+    Route::prefix('pages/{page}/items')->group(function () {
+        Route::post('/', [RestaurantMenuController::class, 'storeItem']);
+        Route::post('/reorder', [RestaurantMenuController::class, 'reorderItems']);
+        Route::match(['post', 'put'], '/{item}', [RestaurantMenuController::class, 'updateItem']);
+        Route::delete('/{item}', [RestaurantMenuController::class, 'destroyItem']);
+        Route::post('/{item}/move', [RestaurantMenuController::class, 'moveItem']);
     });
 
     // Links
