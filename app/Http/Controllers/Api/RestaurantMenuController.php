@@ -23,7 +23,7 @@ class RestaurantMenuController extends Controller
 
         $categories = RestaurantMenuCategory::where('page_id', $page->id)
             ->with(['items' => function ($query) {
-                $query->orderBy('position');
+                $query->with('extras')->orderBy('position');
             }])
             ->orderBy('position')
             ->get()
@@ -50,6 +50,12 @@ class RestaurantMenuController extends Controller
                             'is_available' => (bool) $item->is_available,
                             'created_at' => $item->created_at,
                             'updated_at' => $item->updated_at,
+                            'extras' => $item->extras->map(fn($e) => [
+                                'id' => $e->id,
+                                'name' => $e->name,
+                                'price' => $e->price,
+                                'is_available' => (bool) $e->is_available,
+                            ])->toArray()
                         ];
                     })
                 ];
@@ -221,7 +227,7 @@ class RestaurantMenuController extends Controller
         $validator = Validator::make($request->all(), [
             'category_id' => 'required|integer|exists:restaurant_menu_categories,id',
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0.50',
             'description' => 'nullable|string',
             'is_available' => 'nullable|string', // accepts '1' / '0' / 'true' / 'false'
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // Max 5MB
@@ -262,7 +268,34 @@ class RestaurantMenuController extends Controller
             'position' => $maxPosition + 1
         ]);
 
-        // Wrap response data with image_url
+        // Parse and create extras
+        $extrasData = json_decode($request->input('extras', '[]'), true);
+        if (is_array($extrasData)) {
+            // First validate all extras
+            foreach ($extrasData as $extra) {
+                if (!empty($extra['name'])) {
+                    $extraPrice = floatval($extra['price'] ?? 0);
+                    if ($extraPrice < 0.50) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Extra item "' . $extra['name'] . '" price must be at least 0.50.'
+                        ], 422);
+                    }
+                }
+            }
+
+            foreach ($extrasData as $extra) {
+                if (!empty($extra['name'])) {
+                    $item->extras()->create([
+                        'name' => $extra['name'],
+                        'price' => floatval($extra['price']),
+                        'is_available' => true
+                    ]);
+                }
+            }
+        }
+
+        // Wrap response data with image_url and extras
         $itemData = [
             'id' => $item->id,
             'category_id' => $item->category_id,
@@ -276,6 +309,12 @@ class RestaurantMenuController extends Controller
             'is_available' => (bool) $item->is_available,
             'created_at' => $item->created_at,
             'updated_at' => $item->updated_at,
+            'extras' => $item->extras()->get()->map(fn($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'price' => $e->price,
+                'is_available' => (bool) $e->is_available,
+            ])->toArray()
         ];
 
         return response()->json([
@@ -301,7 +340,7 @@ class RestaurantMenuController extends Controller
         $validator = Validator::make($request->all(), [
             'category_id' => 'sometimes|required|integer|exists:restaurant_menu_categories,id',
             'name' => 'sometimes|required|string|max:255',
-            'price' => 'sometimes|required|numeric|min:0',
+            'price' => 'sometimes|required|numeric|min:0.50',
             'description' => 'nullable|string',
             'is_available' => 'sometimes|required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // Max 5MB
@@ -347,6 +386,36 @@ class RestaurantMenuController extends Controller
 
         $item->save();
 
+        // Sync extras
+        if ($request->has('extras')) {
+            $extrasData = json_decode($request->input('extras', '[]'), true);
+            if (is_array($extrasData)) {
+                // First validate all extras
+                foreach ($extrasData as $extra) {
+                    if (!empty($extra['name'])) {
+                        $extraPrice = floatval($extra['price'] ?? 0);
+                        if ($extraPrice < 0.50) {
+                            return response()->json([
+                                'status' => false,
+                                'message' => 'Extra item "' . $extra['name'] . '" price must be at least 0.50.'
+                            ], 422);
+                        }
+                    }
+                }
+
+                $item->extras()->delete();
+                foreach ($extrasData as $extra) {
+                    if (!empty($extra['name'])) {
+                        $item->extras()->create([
+                            'name' => $extra['name'],
+                            'price' => floatval($extra['price']),
+                            'is_available' => true
+                        ]);
+                    }
+                }
+            }
+        }
+
         $itemData = [
             'id' => $item->id,
             'category_id' => $item->category_id,
@@ -360,6 +429,12 @@ class RestaurantMenuController extends Controller
             'is_available' => (bool) $item->is_available,
             'created_at' => $item->created_at,
             'updated_at' => $item->updated_at,
+            'extras' => $item->extras()->get()->map(fn($e) => [
+                'id' => $e->id,
+                'name' => $e->name,
+                'price' => $e->price,
+                'is_available' => (bool) $e->is_available,
+            ])->toArray()
         ];
 
         return response()->json([
