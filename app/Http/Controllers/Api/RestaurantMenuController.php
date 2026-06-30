@@ -23,7 +23,7 @@ class RestaurantMenuController extends Controller
 
         $categories = RestaurantMenuCategory::where('page_id', $page->id)
             ->with(['items' => function ($query) {
-                $query->with('extras')->orderBy('position');
+                $query->with(['extras', 'variations'])->orderBy('position');
             }])
             ->orderBy('position')
             ->get()
@@ -55,6 +55,12 @@ class RestaurantMenuController extends Controller
                                 'name' => $e->name,
                                 'price' => $e->price,
                                 'is_available' => (bool) $e->is_available,
+                            ])->toArray(),
+                            'variations' => $item->variations->map(fn($v) => [
+                                'id' => $v->id,
+                                'name' => $v->name,
+                                'price' => $v->price,
+                                'is_available' => (bool) $v->is_available,
                             ])->toArray()
                         ];
                     })
@@ -295,7 +301,34 @@ class RestaurantMenuController extends Controller
             }
         }
 
-        // Wrap response data with image_url and extras
+        // Parse and create variations
+        $variationsData = json_decode($request->input('variations', '[]'), true);
+        if (is_array($variationsData)) {
+            // First validate all variations
+            foreach ($variationsData as $var) {
+                if (!empty($var['name'])) {
+                    $varPrice = floatval($var['price'] ?? 0);
+                    if ($varPrice < 0.50) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Variation item "' . $var['name'] . '" price must be at least 0.50.'
+                        ], 422);
+                    }
+                }
+            }
+
+            foreach ($variationsData as $var) {
+                if (!empty($var['name'])) {
+                    $item->variations()->create([
+                        'name' => $var['name'],
+                        'price' => floatval($var['price']),
+                        'is_available' => true
+                    ]);
+                }
+            }
+        }
+
+        // Wrap response data with image_url, extras and variations
         $itemData = [
             'id' => $item->id,
             'category_id' => $item->category_id,
@@ -314,6 +347,12 @@ class RestaurantMenuController extends Controller
                 'name' => $e->name,
                 'price' => $e->price,
                 'is_available' => (bool) $e->is_available,
+            ])->toArray(),
+            'variations' => $item->variations()->get()->map(fn($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'price' => $v->price,
+                'is_available' => (bool) $v->is_available,
             ])->toArray()
         ];
 
@@ -416,6 +455,36 @@ class RestaurantMenuController extends Controller
             }
         }
 
+        // Sync variations
+        if ($request->has('variations')) {
+            $variationsData = json_decode($request->input('variations', '[]'), true);
+            if (is_array($variationsData)) {
+                // First validate all variations
+                foreach ($variationsData as $var) {
+                    if (!empty($var['name'])) {
+                        $varPrice = floatval($var['price'] ?? 0);
+                        if ($varPrice < 0.50) {
+                            return response()->json([
+                                'status' => false,
+                                'message' => 'Variation item "' . $var['name'] . '" price must be at least 0.50.'
+                            ], 422);
+                        }
+                    }
+                }
+
+                $item->variations()->delete();
+                foreach ($variationsData as $var) {
+                    if (!empty($var['name'])) {
+                        $item->variations()->create([
+                            'name' => $var['name'],
+                            'price' => floatval($var['price']),
+                            'is_available' => true
+                        ]);
+                    }
+                }
+            }
+        }
+
         $itemData = [
             'id' => $item->id,
             'category_id' => $item->category_id,
@@ -434,6 +503,12 @@ class RestaurantMenuController extends Controller
                 'name' => $e->name,
                 'price' => $e->price,
                 'is_available' => (bool) $e->is_available,
+            ])->toArray(),
+            'variations' => $item->variations()->get()->map(fn($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'price' => $v->price,
+                'is_available' => (bool) $v->is_available,
             ])->toArray()
         ];
 
