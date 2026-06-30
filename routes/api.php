@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\PageTypesController;
 use App\Http\Controllers\Api\BannersController;
 use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\RestaurantMenuController;
+use App\Http\Controllers\Api\RestaurantOrdersController;
 
 
 
@@ -99,6 +100,7 @@ Route::get('/configurations/{slug?}', [ConfigurationController::class, 'index'])
 
 // Pages
 Route::get('/p/{slug}', [PagesController::class, 'showPublic'])->name('api.pages.showPublic');
+Route::post('/p/{slug}/orders', [RestaurantOrdersController::class, 'storePublic'])->name('api.pages.storePublicOrder');
 
 // Templates (Public)
 Route::get('/templates/{id}', [TemplatesController::class, 'show'])->name('api.templates.show');
@@ -177,6 +179,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::match(['post', 'put'], '/{item}', [RestaurantMenuController::class, 'updateItem']);
         Route::delete('/{item}', [RestaurantMenuController::class, 'destroyItem']);
         Route::post('/{item}/move', [RestaurantMenuController::class, 'moveItem']);
+    });
+
+    // Restaurant Orders
+    Route::prefix('pages/{page}/orders')->group(function () {
+        Route::get('/', [RestaurantOrdersController::class, 'index']);
+        Route::get('/{order}', [RestaurantOrdersController::class, 'show']);
+        Route::put('/{order}/status', [RestaurantOrdersController::class, 'updateStatus']);
     });
 
     // Links
