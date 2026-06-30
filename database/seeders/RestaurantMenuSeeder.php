@@ -83,16 +83,62 @@ class RestaurantMenuSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        RestaurantMenuItem::create([
+        $potatoItem = RestaurantMenuItem::create([
             'category_id' => 1,
             'page_id' => 1,
-            'name' => 'طبق بطاطس صغير',
+            'name' => 'طبق بطاطس',
             'price' => 10,
-            'description' => 'طبق بطاطس صغير',
+            'description' => 'طبق بطاطس مقلية مقرمشة ولذيذة',
             'image' => '',
             'position' => 5,
             'created_at' => now(),
             'updated_at' => now(),
+        ]);
+
+        $potatoItem->variations()->createMany([
+            [
+                'name' => 'صغير',
+                'price' => 10,
+                'is_available' => true,
+                'position' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'كبير',
+                'price' => 15,
+                'is_available' => true,
+                'position' => 2,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
+
+        $potatoItem->extras()->createMany([
+            [
+                'name' => 'جبنة شيدر',
+                'price' => 5,
+                'is_available' => true,
+                'position' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'صوص كاتشب',
+                'price' => 2,
+                'is_available' => true,
+                'position' => 2,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'صوص مايونيز',
+                'price' => 2,
+                'is_available' => true,
+                'position' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
 
