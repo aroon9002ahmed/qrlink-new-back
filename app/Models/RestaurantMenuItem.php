@@ -44,11 +44,11 @@ class RestaurantMenuItem extends Model
 
     public function variations()
     {
-        return $this->hasMany(RestaurantMenuItemVariation::class, 'menu_item_id');
+        return $this->hasMany(RestaurantMenuItemVariation::class, 'menu_item_id')->orderBy('position');
     }
 
     public function extras()
     {
-        return $this->hasMany(RestaurantMenuItemExtra::class, 'menu_item_id');
+        return $this->hasMany(RestaurantMenuItemExtra::class, 'menu_item_id')->orderBy('position');
     }
 }

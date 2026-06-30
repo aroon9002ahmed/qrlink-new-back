@@ -54,12 +54,14 @@ class RestaurantMenuController extends Controller
                                 'id' => $e->id,
                                 'name' => $e->name,
                                 'price' => $e->price,
+                                'position' => $e->position,
                                 'is_available' => (bool) $e->is_available,
                             ])->toArray(),
                             'variations' => $item->variations->map(fn($v) => [
                                 'id' => $v->id,
                                 'name' => $v->name,
                                 'price' => $v->price,
+                                'position' => $v->position,
                                 'is_available' => (bool) $v->is_available,
                             ])->toArray()
                         ];
@@ -290,11 +292,13 @@ class RestaurantMenuController extends Controller
                 }
             }
 
+            $pos = 1;
             foreach ($extrasData as $extra) {
                 if (!empty($extra['name'])) {
                     $item->extras()->create([
                         'name' => $extra['name'],
                         'price' => floatval($extra['price']),
+                        'position' => $pos++,
                         'is_available' => true
                     ]);
                 }
@@ -317,11 +321,13 @@ class RestaurantMenuController extends Controller
                 }
             }
 
+            $pos = 1;
             foreach ($variationsData as $var) {
                 if (!empty($var['name'])) {
                     $item->variations()->create([
                         'name' => $var['name'],
                         'price' => floatval($var['price']),
+                        'position' => $pos++,
                         'is_available' => true
                     ]);
                 }
@@ -346,12 +352,14 @@ class RestaurantMenuController extends Controller
                 'id' => $e->id,
                 'name' => $e->name,
                 'price' => $e->price,
+                'position' => $e->position,
                 'is_available' => (bool) $e->is_available,
             ])->toArray(),
             'variations' => $item->variations()->get()->map(fn($v) => [
                 'id' => $v->id,
                 'name' => $v->name,
                 'price' => $v->price,
+                'position' => $v->position,
                 'is_available' => (bool) $v->is_available,
             ])->toArray()
         ];
@@ -443,11 +451,13 @@ class RestaurantMenuController extends Controller
                 }
 
                 $item->extras()->delete();
+                $pos = 1;
                 foreach ($extrasData as $extra) {
                     if (!empty($extra['name'])) {
                         $item->extras()->create([
                             'name' => $extra['name'],
                             'price' => floatval($extra['price']),
+                            'position' => $pos++,
                             'is_available' => true
                         ]);
                     }
@@ -473,11 +483,13 @@ class RestaurantMenuController extends Controller
                 }
 
                 $item->variations()->delete();
+                $pos = 1;
                 foreach ($variationsData as $var) {
                     if (!empty($var['name'])) {
                         $item->variations()->create([
                             'name' => $var['name'],
                             'price' => floatval($var['price']),
+                            'position' => $pos++,
                             'is_available' => true
                         ]);
                     }
@@ -502,12 +514,14 @@ class RestaurantMenuController extends Controller
                 'id' => $e->id,
                 'name' => $e->name,
                 'price' => $e->price,
+                'position' => $e->position,
                 'is_available' => (bool) $e->is_available,
             ])->toArray(),
             'variations' => $item->variations()->get()->map(fn($v) => [
                 'id' => $v->id,
                 'name' => $v->name,
                 'price' => $v->price,
+                'position' => $v->position,
                 'is_available' => (bool) $v->is_available,
             ])->toArray()
         ];

@@ -165,11 +165,13 @@ class PagesController extends Controller
                                     'id' => $v->id,
                                     'name' => $v->name,
                                     'price' => $v->price,
+                                    'position' => $v->position,
                                 ])->toArray(),
                                 'extras' => $item->extras->map(fn($e) => [
                                     'id' => $e->id,
                                     'name' => $e->name,
                                     'price' => $e->price,
+                                    'position' => $e->position,
                                 ])->toArray(),
                             ];
                         })->toArray()
@@ -309,11 +311,13 @@ class PagesController extends Controller
                                     'id' => $v->id,
                                     'name' => $v->name,
                                     'price' => $v->price,
+                                    'position' => $v->position,
                                 ])->toArray(),
                                 'extras' => $item->extras->map(fn($e) => [
                                     'id' => $e->id,
                                     'name' => $e->name,
                                     'price' => $e->price,
+                                    'position' => $e->position,
                                 ])->toArray(),
                             ];
                         })->toArray()

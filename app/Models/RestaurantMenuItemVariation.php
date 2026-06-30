@@ -9,7 +9,7 @@ class RestaurantMenuItemVariation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['menu_item_id', 'name', 'price', 'is_available'];
+    protected $fillable = ['menu_item_id', 'name', 'price', 'is_available', 'position'];
 
     protected $casts = [
         'price' => 'decimal:2',
