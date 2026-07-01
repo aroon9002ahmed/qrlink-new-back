@@ -90,7 +90,44 @@ class RestaurantOrdersController extends Controller
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $order->status = $request->status;
+        $currentStatus = $order->status;
+        $newStatus = $request->status;
+
+        if ($currentStatus !== $newStatus) {
+            // 1. Final states cannot transition
+            if (in_array($currentStatus, ['completed', 'cancelled'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Cannot change status of a completed or cancelled order.',
+                ], 422);
+            }
+
+            // 2. Preparing cannot roll back to pending/confirmed
+            if ($currentStatus === 'preparing' && in_array($newStatus, ['pending', 'confirmed'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Cannot transition back to '.$newStatus.' once order is preparing.',
+                ], 422);
+            }
+
+            // 3. Delivered cannot roll back to pending/confirmed/preparing
+            if ($currentStatus === 'delivered' && in_array($newStatus, ['pending', 'confirmed', 'preparing'])) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Cannot transition back to '.$newStatus.' once order is delivered.',
+                ], 422);
+            }
+
+            // 4. Takeaway and Table orders cannot have delivered status
+            if (in_array($order->type, ['takeaway', 'table']) && $newStatus === 'delivered') {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Takeaway and Table orders cannot transition to delivered status.',
+                ], 422);
+            }
+        }
+
+        $order->status = $newStatus;
         $order->save();
 
         // Reload with relations
@@ -134,6 +171,20 @@ class RestaurantOrdersController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        // Check if the table has active orders
+        if ($request->type === 'table' && $request->table_id) {
+            $hasActiveOrder = RestaurantOrder::where('table_id', $request->table_id)
+                ->whereNotIn('status', ['completed', 'cancelled'])
+                ->exists();
+
+            if ($hasActiveOrder) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'This table has a pending or active order. Please select a different table or wait until it is cleared.',
+                ], 422);
+            }
         }
 
         // Create the order

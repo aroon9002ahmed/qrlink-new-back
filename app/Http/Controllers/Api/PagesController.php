@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
-use App\Models\RestaurantMenuCategory;
 use App\Models\Page;
+use App\Models\RestaurantMenuCategory;
 use App\Models\SocialPlatform;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PagesController extends Controller
@@ -17,9 +18,6 @@ class PagesController extends Controller
      * Get a list of all pages belonging to the authenticated user.
      *
      * GET /api/pages
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -31,8 +29,8 @@ class PagesController extends Controller
 
         return response()->json([
             'status' => true,
-            'total'  => $pages->count(),
-            'data'   => PageResource::collection($pages),
+            'total' => $pages->count(),
+            'data' => PageResource::collection($pages),
         ], 200);
     }
 
@@ -41,9 +39,7 @@ class PagesController extends Controller
      *
      * GET /api/pages/{id}
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
      */
     public function show(Request $request, int $page): JsonResponse
     {
@@ -54,7 +50,7 @@ class PagesController extends Controller
 
         if (! $page) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Page not found.',
             ], 404);
         }
@@ -65,16 +61,16 @@ class PagesController extends Controller
             ->get()
             ->map(function ($link) {
                 return [
-                    'id'            => $link->id,
-                    'page_id'       => $link->page_id,
-                    'platform_id'   => $link->platform_id,
+                    'id' => $link->id,
+                    'page_id' => $link->page_id,
+                    'platform_id' => $link->platform_id,
                     'platform_name' => $link->socialPlatform?->name,
                     'platform_icon' => $link->socialPlatform?->icon,
-                    'color'         => $link->socialPlatform?->color,
-                    'value'         => $link->value,
-                    'sort_order'    => $link->sort_order,
-                    'created_at'    => $link->created_at,
-                    'updated_at'    => $link->updated_at,
+                    'color' => $link->socialPlatform?->color,
+                    'value' => $link->value,
+                    'sort_order' => $link->sort_order,
+                    'created_at' => $link->created_at,
+                    'updated_at' => $link->updated_at,
                 ];
             });
 
@@ -133,12 +129,12 @@ class PagesController extends Controller
                     ->get()
                     ->map(function ($branch) {
                         return [
-                            'id'        => $branch->id,
-                            'name'      => $branch->name,
-                            'address'   => $branch->address,
-                            'latitude'  => $branch->latitude,
+                            'id' => $branch->id,
+                            'name' => $branch->name,
+                            'address' => $branch->address,
+                            'latitude' => $branch->latitude,
                             'longitude' => $branch->longitude,
-                            'main'      => (bool) $branch->main,
+                            'main' => (bool) $branch->main,
                         ];
                     })->toArray(),
                 'categories' => $restaurantCategories->map(function ($category) {
@@ -150,7 +146,7 @@ class PagesController extends Controller
                         'settings' => $category->settings ?? [
                             'show_images' => true,
                             'show_prices' => true,
-                            'display_style' => 'cards'
+                            'display_style' => 'cards',
                         ],
                         'items' => $category->items->map(function ($item) {
                             return [
@@ -159,36 +155,36 @@ class PagesController extends Controller
                                 'description' => $item->description,
                                 'price' => $item->price,
                                 'image' => $item->image,
-                                'image_url' => $item->image ? asset('storage/' . $item->image) : null,
+                                'image_url' => $item->image ? asset('storage/'.$item->image) : null,
                                 'is_available' => $item->is_available,
-                                'variations' => $item->variations->map(fn($v) => [
+                                'variations' => $item->variations->map(fn ($v) => [
                                     'id' => $v->id,
                                     'name' => $v->name,
                                     'price' => $v->price,
                                     'position' => $v->position,
                                 ])->toArray(),
-                                'extras' => $item->extras->map(fn($e) => [
+                                'extras' => $item->extras->map(fn ($e) => [
                                     'id' => $e->id,
                                     'name' => $e->name,
                                     'price' => $e->price,
                                     'position' => $e->position,
                                 ])->toArray(),
                             ];
-                        })->toArray()
+                        })->toArray(),
                     ];
-                })->values()->toArray()
+                })->values()->toArray(),
             ];
         }
 
         return response()->json([
             'status' => true,
-            'data'   => [
-                'page'           => new PageResource($page),
-                'socialLinks'    => $socialLinks,
-                'banners'        => $banners,
-                'blocks'         => $blocks,
+            'data' => [
+                'page' => new PageResource($page),
+                'socialLinks' => $socialLinks,
+                'banners' => $banners,
+                'blocks' => $blocks,
                 'restaurantMenu' => $restaurantMenu ?: null,
-            ]
+            ],
         ], 200);
     }
 
@@ -205,7 +201,7 @@ class PagesController extends Controller
 
         if (! $page) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Page not found.',
             ], 404);
         }
@@ -218,9 +214,9 @@ class PagesController extends Controller
                 return [
                     'platform_name' => $link->socialPlatform?->name,
                     'platform_icon' => $link->socialPlatform?->icon,
-                    'color'         => $link->socialPlatform?->color,
-                    'value'         => $link->value,
-                    'sort_order'    => $link->sort_order,
+                    'color' => $link->socialPlatform?->color,
+                    'value' => $link->value,
+                    'sort_order' => $link->sort_order,
                 ];
             });
 
@@ -279,12 +275,30 @@ class PagesController extends Controller
                     ->get()
                     ->map(function ($branch) {
                         return [
-                            'id'        => $branch->id,
-                            'name'      => $branch->name,
-                            'address'   => $branch->address,
-                            'latitude'  => $branch->latitude,
+                            'id' => $branch->id,
+                            'name' => $branch->name,
+                            'address' => $branch->address,
+                            'latitude' => $branch->latitude,
                             'longitude' => $branch->longitude,
-                            'main'      => (bool) $branch->main,
+                            'main' => (bool) $branch->main,
+                        ];
+                    })->toArray(),
+                'tables' => $page->tables()
+                    ->where('type', 'table')
+                    ->whereNotExists(function ($query) {
+                        $query->select(DB::raw(1))
+                            ->from('restaurant_orders')
+                            ->whereColumn('restaurant_orders.table_id', 'restaurant_tables.id')
+                            ->whereNotIn('restaurant_orders.status', ['completed', 'cancelled']);
+                    })
+                    ->orderByRaw('CAST(table_number AS UNSIGNED) ASC')
+                    ->orderBy('table_number')
+                    ->get()
+                    ->map(function ($table) {
+                        return [
+                            'id' => $table->id,
+                            'table_number' => $table->table_number,
+                            'seating_capacity' => $table->seating_capacity,
                         ];
                     })->toArray(),
                 'categories' => $restaurantCategories->map(function ($category) {
@@ -296,7 +310,7 @@ class PagesController extends Controller
                         'settings' => $category->settings ?? [
                             'show_images' => true,
                             'show_prices' => true,
-                            'display_style' => 'cards'
+                            'display_style' => 'cards',
                         ],
                         'items' => $category->items->map(function ($item) {
                             return [
@@ -305,36 +319,36 @@ class PagesController extends Controller
                                 'description' => $item->description,
                                 'price' => $item->price,
                                 'image' => $item->image,
-                                'image_url' => $item->image ? asset('storage/' . $item->image) : null,
+                                'image_url' => $item->image ? asset('storage/'.$item->image) : null,
                                 'is_available' => $item->is_available,
-                                'variations' => $item->variations->map(fn($v) => [
+                                'variations' => $item->variations->map(fn ($v) => [
                                     'id' => $v->id,
                                     'name' => $v->name,
                                     'price' => $v->price,
                                     'position' => $v->position,
                                 ])->toArray(),
-                                'extras' => $item->extras->map(fn($e) => [
+                                'extras' => $item->extras->map(fn ($e) => [
                                     'id' => $e->id,
                                     'name' => $e->name,
                                     'price' => $e->price,
                                     'position' => $e->position,
                                 ])->toArray(),
                             ];
-                        })->toArray()
+                        })->toArray(),
                     ];
-                })->values()->toArray()
+                })->values()->toArray(),
             ];
         }
 
         return response()->json([
             'status' => true,
-            'data'   => [
-                'page'           => new PageResource($page),
-                'socialLinks'    => $socialLinks,
-                'banners'        => $banners,
-                'blocks'         => $blocks,
+            'data' => [
+                'page' => new PageResource($page),
+                'socialLinks' => $socialLinks,
+                'banners' => $banners,
+                'blocks' => $blocks,
                 'restaurantMenu' => $restaurantMenu ?: null,
-            ]
+            ],
         ], 200);
     }
 
@@ -342,32 +356,28 @@ class PagesController extends Controller
      * Update an existing page.
      *
      * PUT/POST /api/pages/{page}
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $pageId
-     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, int $pageId): JsonResponse
     {
         $page = $request->user()->pages()->find($pageId);
 
-        if (!$page) {
+        if (! $page) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Page not found.',
             ], 404);
         }
 
         $validated = $request->validate([
-            'title'        => 'sometimes|required|string|max:255',
-            'description'  => 'sometimes|nullable|string',
-            'language'     => 'sometimes|required|string|in:ar,en',
-            'copyright'    => 'sometimes|required|boolean',
-            'template_id'  => 'sometimes|nullable|integer|exists:templates,id',
-            'settings'     => 'sometimes|nullable|string',
-            'image_path'   => 'sometimes|nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'language' => 'sometimes|required|string|in:ar,en',
+            'copyright' => 'sometimes|required|boolean',
+            'template_id' => 'sometimes|nullable|integer|exists:templates,id',
+            'settings' => 'sometimes|nullable|string',
+            'image_path' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             'remove_image' => 'sometimes|nullable|in:0,1',
-            'status'       => 'sometimes|required|boolean',
+            'status' => 'sometimes|required|boolean',
         ]);
 
         $updateData = [];
@@ -412,8 +422,8 @@ class PagesController extends Controller
             }
 
             $file = $request->file('image_path');
-            $filename = $page->slug . '_' . $page->id . '_' . now()->format('Ymd_His') . '.' . $file->getClientOriginalExtension();
-            $path = 'upload/logo/' . $filename;
+            $filename = $page->slug.'_'.$page->id.'_'.now()->format('Ymd_His').'.'.$file->getClientOriginalExtension();
+            $path = 'upload/logo/'.$filename;
             $this->resizeAndSaveImage($file->getRealPath(), $path, 118, 118);
             $updateData['image_path'] = $path;
         }
@@ -422,7 +432,7 @@ class PagesController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => new PageResource($page->load(['pageType', 'template'])),
+            'data' => new PageResource($page->load(['pageType', 'template'])),
         ], 200);
     }
 
@@ -430,18 +440,14 @@ class PagesController extends Controller
      * Update only the page status.
      *
      * PUT /api/pages/{page}/status
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $pageId
-     * @return \Illuminate\Http\JsonResponse
      */
     public function updateStatus(Request $request, int $pageId): JsonResponse
     {
         $page = $request->user()->pages()->find($pageId);
 
-        if (!$page) {
+        if (! $page) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Page not found.',
             ], 404);
         }
@@ -457,9 +463,9 @@ class PagesController extends Controller
         ]);
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Page status updated successfully.',
-            'data'    => new PageResource($page->load(['pageType', 'template'])),
+            'data' => new PageResource($page->load(['pageType', 'template'])),
         ], 200);
     }
 
@@ -469,9 +475,10 @@ class PagesController extends Controller
     public function socialPlatforms(): JsonResponse
     {
         $platforms = SocialPlatform::where('status', true)->get();
+
         return response()->json([
             'status' => true,
-            'data'   => $platforms,
+            'data' => $platforms,
         ], 200);
     }
 
@@ -482,9 +489,9 @@ class PagesController extends Controller
     {
         $page = $request->user()->pages()->find($pageId);
 
-        if (!$page) {
+        if (! $page) {
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Page not found.',
             ], 404);
         }
@@ -493,11 +500,11 @@ class PagesController extends Controller
             'links' => 'present|array',
             'links.*.platform_id' => 'required|integer|exists:social_platforms,id',
             'links.*.value' => 'required|string|max:255',
-            'links.*.sort_order' => 'nullable|integer'
+            'links.*.sort_order' => 'nullable|integer',
         ]);
 
         // Wrap operations in transaction to prevent partial state on database failure
-        \Illuminate\Support\Facades\DB::transaction(function () use ($page, $validated) {
+        DB::transaction(function () use ($page, $validated) {
             // Delete existing social links
             $page->socialLinks()->delete();
 
@@ -505,8 +512,8 @@ class PagesController extends Controller
             foreach ($validated['links'] as $index => $linkData) {
                 $page->socialLinks()->create([
                     'platform_id' => $linkData['platform_id'],
-                    'value'       => $linkData['value'],
-                    'sort_order'  => $linkData['sort_order'] ?? ($index + 1),
+                    'value' => $linkData['value'],
+                    'sort_order' => $linkData['sort_order'] ?? ($index + 1),
                 ]);
             }
         });
@@ -517,23 +524,23 @@ class PagesController extends Controller
             ->get()
             ->map(function ($link) {
                 return [
-                    'id'            => $link->id,
-                    'page_id'       => $link->page_id,
-                    'platform_id'   => $link->platform_id,
+                    'id' => $link->id,
+                    'page_id' => $link->page_id,
+                    'platform_id' => $link->platform_id,
                     'platform_name' => $link->socialPlatform?->name,
                     'platform_icon' => $link->socialPlatform?->icon,
-                    'color'         => $link->socialPlatform?->color,
-                    'value'         => $link->value,
-                    'sort_order'    => $link->sort_order,
-                    'created_at'    => $link->created_at,
-                    'updated_at'    => $link->updated_at,
+                    'color' => $link->socialPlatform?->color,
+                    'value' => $link->value,
+                    'sort_order' => $link->sort_order,
+                    'created_at' => $link->created_at,
+                    'updated_at' => $link->updated_at,
                 ];
             });
 
         return response()->json([
-            'status'  => true,
+            'status' => true,
             'message' => 'Social links updated successfully.',
-            'data'    => $socialLinks,
+            'data' => $socialLinks,
         ], 200);
     }
 
@@ -543,7 +550,7 @@ class PagesController extends Controller
     protected function resizeAndSaveImage(string $tempPath, string $targetPath, int $targetWidth, int $targetHeight): void
     {
         $imageInfo = @getimagesize($tempPath);
-        if (!$imageInfo) {
+        if (! $imageInfo) {
             return;
         }
 
@@ -568,7 +575,7 @@ class PagesController extends Controller
                 break;
         }
 
-        if (!$source) {
+        if (! $source) {
             return;
         }
 
@@ -618,7 +625,7 @@ class PagesController extends Controller
         imagedestroy($source);
 
         $directory = dirname($targetPath);
-        if (!Storage::disk('public')->exists($directory)) {
+        if (! Storage::disk('public')->exists($directory)) {
             Storage::disk('public')->makeDirectory($directory);
         }
         Storage::disk('public')->put($targetPath, $imageData, 'public');
