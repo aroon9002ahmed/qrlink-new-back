@@ -13,4 +13,9 @@ class RestaurantTable extends Model
         'type',
         'status',
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(RestaurantOrder::class, 'table_id');
+    }
 }

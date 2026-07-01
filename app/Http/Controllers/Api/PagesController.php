@@ -285,6 +285,7 @@ class PagesController extends Controller
                     })->toArray(),
                 'tables' => $page->tables()
                     ->where('type', 'table')
+                    ->where('status', 'available')
                     ->whereNotExists(function ($query) {
                         $query->select(DB::raw(1))
                             ->from('restaurant_orders')
