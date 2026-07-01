@@ -21,8 +21,19 @@ class RestaurantOrdersController extends Controller
             return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
         }
 
-        $orders = RestaurantOrder::where('page_id', $page->id)
-            ->with(['items.menuItem', 'items.extras', 'table', 'branch'])
+        $isArchivedQuery = $request->query('type') === 'archived' || $request->query('archived') === 'true';
+
+        $query = RestaurantOrder::where('page_id', $page->id)
+            ->where('is_archived', $isArchivedQuery);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->query('start_date'));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->query('end_date'));
+        }
+
+        $orders = $query->with(['items.menuItem', 'items.extras', 'table', 'branch'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -163,5 +174,60 @@ class RestaurantOrdersController extends Controller
             'message' => 'Order stored successfully.',
             'data' => $order->load(['items.menuItem', 'items.extras', 'table', 'branch']),
         ], 201);
+    }
+
+    /**
+     * Handover shift: archive all completed and delivered active orders.
+     */
+    public function handoverShift(Request $request, $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        RestaurantOrder::where('page_id', $page->id)
+            ->where('is_archived', false)
+            ->whereIn('status', ['completed', 'delivered'])
+            ->update(['is_archived' => true]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Shift handed over successfully. All completed orders have been archived.',
+        ]);
+    }
+
+    /**
+     * Close the business day: archive all orders after verifying no pending/active orders exist.
+     */
+    public function closeDay(Request $request, $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        // Check for any uncompleted/active orders
+        $activeCount = RestaurantOrder::where('page_id', $page->id)
+            ->where('is_archived', false)
+            ->whereIn('status', ['pending', 'confirmed', 'preparing'])
+            ->count();
+
+        if ($activeCount > 0) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Cannot close the day. There are still active orders that must be completed or cancelled first.',
+            ], 422);
+        }
+
+        // Archive all remaining orders (completed, delivered, cancelled)
+        RestaurantOrder::where('page_id', $page->id)
+            ->where('is_archived', false)
+            ->update(['is_archived' => true]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Day closed successfully. All orders have been archived.',
+        ]);
     }
 }

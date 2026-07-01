@@ -184,6 +184,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Restaurant Orders
     Route::prefix('pages/{page}/orders')->group(function () {
         Route::get('/', [RestaurantOrdersController::class, 'index']);
+        Route::post('/handover-shift', [RestaurantOrdersController::class, 'handoverShift']);
+        Route::post('/close-day', [RestaurantOrdersController::class, 'closeDay']);
         Route::get('/{order}', [RestaurantOrdersController::class, 'show']);
         Route::put('/{order}/status', [RestaurantOrdersController::class, 'updateStatus']);
     });
