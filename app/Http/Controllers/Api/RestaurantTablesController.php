@@ -182,6 +182,18 @@ class RestaurantTablesController extends Controller
             ], 404);
         }
 
+        // Check if there are active, non-finalized orders on this table
+        $hasActiveOrders = $table->orders()
+            ->whereNotIn('status', ['completed', 'cancelled'])
+            ->exists();
+
+        if ($hasActiveOrders) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Cannot delete this table because it currently has active orders.',
+            ], 422);
+        }
+
         $table->delete();
 
         return response()->json([
