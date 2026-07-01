@@ -281,4 +281,58 @@ class RestaurantOrdersController extends Controller
             'message' => 'Day closed successfully. All orders have been archived.',
         ]);
     }
+
+    /**
+     * Update the order details (type, table).
+     */
+    public function update(Request $request, $pageId, $orderId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        $order = RestaurantOrder::where('page_id', $page->id)->find($orderId);
+        if (! $order) {
+            return response()->json(['status' => false, 'message' => 'Order not found.'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'type' => 'required|string|in:table,takeaway,delivery',
+            'table_id' => 'nullable|integer|exists:restaurant_tables,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        // Validate table occupancy if changing table
+        if ($request->type === 'table' && $request->table_id) {
+            $hasActiveOrder = RestaurantOrder::where('table_id', $request->table_id)
+                ->where('id', '!=', $order->id)
+                ->whereNotIn('status', ['completed', 'cancelled'])
+                ->exists();
+
+            if ($hasActiveOrder) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'The selected table is currently occupied by another active order.',
+                ], 422);
+            }
+        }
+
+        $order->type = $request->type;
+        if ($request->type === 'table') {
+            $order->table_id = $request->table_id;
+        } else {
+            $order->table_id = null;
+        }
+        $order->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Order updated successfully.',
+            'data' => $order->load(['items.menuItem', 'items.extras', 'table', 'branch']),
+        ]);
+    }
 }

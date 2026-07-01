@@ -190,6 +190,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/close-day', [RestaurantOrdersController::class, 'closeDay']);
         Route::get('/{order}', [RestaurantOrdersController::class, 'show']);
         Route::put('/{order}/status', [RestaurantOrdersController::class, 'updateStatus']);
+        Route::put('/{order}', [RestaurantOrdersController::class, 'update']);
     });
 
     // Links
