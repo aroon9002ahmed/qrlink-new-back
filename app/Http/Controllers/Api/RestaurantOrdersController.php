@@ -228,7 +228,7 @@ class RestaurantOrdersController extends Controller
     }
 
     /**
-     * Handover shift: archive all completed and delivered active orders.
+     * Handover shift: archive all completed active orders.
      */
     public function handoverShift(Request $request, $pageId): JsonResponse
     {
@@ -239,7 +239,7 @@ class RestaurantOrdersController extends Controller
 
         RestaurantOrder::where('page_id', $page->id)
             ->where('is_archived', false)
-            ->whereIn('status', ['completed', 'delivered'])
+            ->where('status', 'completed')
             ->update(['is_archived' => true]);
 
         return response()->json([
