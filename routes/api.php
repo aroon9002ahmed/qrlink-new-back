@@ -131,9 +131,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Pages
     Route::prefix('pages')->group(function () {
+        Route::get('/check-slug', [PagesController::class, 'checkSlug'])->name('api.pages.checkSlug');
         Route::get('/', [PagesController::class, 'index'])->name('api.pages.index');
+        Route::post('/', [PagesController::class, 'store'])->name('api.pages.store');
         Route::get('/{page}', [PagesController::class, 'show'])->name('api.pages.show');
         Route::patch('/{page}', [PagesController::class, 'update'])->name('api.pages.update');
+        Route::delete('/{page}', [PagesController::class, 'destroy'])->name('api.pages.destroy');
         Route::put('/{page}/status', [PagesController::class, 'updateStatus'])->name('api.pages.updateStatus');
         Route::put('/{page}/restaurant-settings', [PagesController::class, 'updateRestaurantSettings'])->name('api.pages.updateRestaurantSettings');
         Route::get('/{page}/restaurant-settings', [PagesController::class, 'getRestaurantSettings'])->name('api.pages.getRestaurantSettings');

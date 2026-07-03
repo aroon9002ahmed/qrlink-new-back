@@ -28,6 +28,11 @@ class QrcodesController extends Controller
             $query->limit((int) $request->query('limit'));
         }
 
+        // Filter by original URL (exact match) — used to check if a QR already exists for a URL
+        if ($request->has('url')) {
+            $query->where('original_url', $request->query('url'));
+        }
+
         $qrcodes = $query->get();
 
         return response()->json([

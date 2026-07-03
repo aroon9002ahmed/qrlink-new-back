@@ -706,4 +706,166 @@ class PagesController extends Controller
         }
         Storage::disk('public')->put($targetPath, $imageData, 'public');
     }
+
+    /**
+     * Check if page slug is unique in DB.
+     *
+     * GET /api/pages/check-slug
+     */
+    public function checkSlug(Request $request): JsonResponse
+    {
+        $request->validate([
+            'slug' => 'required|string|max:255',
+        ]);
+
+        $slug = $request->query('slug');
+        $exists = Page::where('slug', $slug)->exists();
+
+        return response()->json([
+            'status' => true,
+            'available' => !$exists,
+            'message' => $exists ? 'Slug is already taken.' : 'Slug is available.'
+        ], 200);
+    }
+
+    /**
+     * Create a new page and initialize associated settings.
+     *
+     * POST /api/pages
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:pages,slug',
+            'language' => 'required|string|in:ar,en',
+            'type' => 'required|integer|exists:page_types,id',
+            'template_id' => 'required|integer|exists:templates,id',
+        ]);
+
+        $validated['user_id'] = $request->user()->id;
+        $validated['status'] = 1;
+
+        $page = DB::transaction(function () use ($validated) {
+            $page = Page::create($validated);
+
+            $pageType = $page->pageType;
+            if ($pageType && $pageType->slug === 'restaurant') {
+                RestaurantSettings::create([
+                    'page_id' => $page->id,
+                    'currency' => 'EGP',
+                    'currency_symbol' => 'ج.م',
+                    'currency_position' => 'after',
+                    'enable_orders' => true,
+                    'enable_tables' => true,
+                    'enable_takeaway' => true,
+                    'enable_delivery' => true,
+                ]);
+            }
+
+            return $page;
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Page created successfully.',
+            'data' => new PageResource($page->load(['pageType', 'template'])),
+        ], 201);
+    }
+
+    /**
+     * Delete a page and all its related files and data.
+     *
+     * DELETE /api/pages/{page}
+     */
+    public function destroy(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+
+        if (! $page) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Page not found.',
+            ], 404);
+        }
+
+        DB::transaction(function () use ($page) {
+            // 1. Delete associated order data
+            foreach ($page->orders as $order) {
+                foreach ($order->items as $item) {
+                    $item->extras()->delete();
+                    $item->delete();
+                }
+                $order->delete();
+            }
+
+            // 2. Delete menu items, variations, extras, and item image files
+            foreach ($page->items as $item) {
+                if ($item->image) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $item->image));
+                    Storage::disk('public')->delete($item->image);
+                }
+                $item->variations()->delete();
+                $item->extras()->delete();
+                $item->delete();
+            }
+
+            // 3. Delete menu categories
+            $page->restaurantCategories()->delete();
+
+            // 4. Delete tables
+            $page->tables()->delete();
+
+            // 5. Delete branches
+            $page->branches()->delete();
+
+            // 6. Delete banners and their images
+            foreach ($page->banners as $banner) {
+                if ($banner->image) {
+                    Storage::disk('public')->delete(str_replace('storage/', '', $banner->image));
+                    Storage::disk('public')->delete($banner->image);
+                }
+                $banner->delete();
+            }
+
+            // 7. Delete blocks and their settings images if they exist
+            foreach ($page->blocks as $block) {
+                if ($block->block_type_id === 3 || $block->blockType?->name === 'Image') {
+                    $settings = is_string($block->settings) ? json_decode($block->settings, true) : $block->settings;
+                    if (!empty($settings['url'])) {
+                        Storage::disk('public')->delete(str_replace('storage/', '', $settings['url']));
+                        Storage::disk('public')->delete($settings['url']);
+                    }
+                }
+                $block->delete();
+            }
+
+            // 8. Delete social links
+            $page->socialLinks()->delete();
+
+            // 9. Delete restaurant settings
+            $page->restaurantSettings()->delete();
+
+            // 10. Delete page views
+            $page->pageViews()->delete();
+
+            // 11. Delete events
+            $page->events()->delete();
+
+            // 12. Delete page logo image
+            if ($page->image_path) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $page->image_path));
+                Storage::disk('public')->delete($page->image_path);
+            }
+
+            // 13. Finally, delete the page itself
+            $page->delete();
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Page and all its associated data deleted successfully.',
+        ], 200);
+    }
 }
+
