@@ -36,7 +36,7 @@ class RestaurantTablesController extends Controller
 
                 $table->active_order = $activeOrder ? [
                     'id' => $activeOrder->id,
-                    'order_number' => $activeOrder->order_number,
+                    'order_number' => $activeOrder->id,
                     'customer_name' => $activeOrder->customer_name,
                     'status' => $activeOrder->status,
                     'total' => $activeOrder->total,
