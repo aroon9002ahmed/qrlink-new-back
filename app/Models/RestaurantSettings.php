@@ -23,6 +23,8 @@ class RestaurantSettings extends Model
         'enable_delivery',
         'enable_takeaway',
         'hotline',
+        'whatsapp_number',
+        'receive_orders_on_whatsapp',
     ];
 
     protected function casts(): array
@@ -32,6 +34,7 @@ class RestaurantSettings extends Model
             'enable_tables' => 'boolean',
             'enable_delivery' => 'boolean',
             'enable_takeaway' => 'boolean',
+            'receive_orders_on_whatsapp' => 'boolean',
         ];
     }
 

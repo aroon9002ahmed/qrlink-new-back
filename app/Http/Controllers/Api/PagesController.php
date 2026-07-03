@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
 use App\Models\Page;
 use App\Models\RestaurantMenuCategory;
+use App\Models\RestaurantSettings;
 use App\Models\SocialPlatform;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -117,6 +118,11 @@ class PagesController extends Controller
                     'enableOrders' => $enableOrders,
                     'isArabicCurrency' => $isArabicCurrency,
                     'hotline' => $restaurantSettings->hotline,
+                    'whatsappNumber' => $restaurantSettings->whatsapp_number,
+                    'receiveOrdersOnWhatsapp' => (bool)$restaurantSettings->receive_orders_on_whatsapp,
+                    'enableTables' => (bool)($restaurantSettings->enable_tables ?? true),
+                    'enableTakeaway' => (bool)($restaurantSettings->enable_takeaway ?? true),
+                    'enableDelivery' => (bool)($restaurantSettings->enable_delivery ?? true),
                 ];
             }
 
@@ -263,6 +269,11 @@ class PagesController extends Controller
                     'enableOrders' => $enableOrders,
                     'isArabicCurrency' => $isArabicCurrency,
                     'hotline' => $restaurantSettings->hotline,
+                    'whatsappNumber' => $restaurantSettings->whatsapp_number,
+                    'receiveOrdersOnWhatsapp' => (bool)$restaurantSettings->receive_orders_on_whatsapp,
+                    'enableTables' => (bool)($restaurantSettings->enable_tables ?? true),
+                    'enableTakeaway' => (bool)($restaurantSettings->enable_takeaway ?? true),
+                    'enableDelivery' => (bool)($restaurantSettings->enable_delivery ?? true),
                 ];
             }
 
@@ -542,6 +553,70 @@ class PagesController extends Controller
             'status' => true,
             'message' => 'Social links updated successfully.',
             'data' => $socialLinks,
+        ], 200);
+    }
+
+    /**
+     * Get restaurant settings for the specific page.
+     *
+     * GET /api/pages/{page}/restaurant-settings
+     */
+    public function getRestaurantSettings(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        if ($page->pageType->slug !== 'restaurant') {
+            return response()->json(['status' => false, 'message' => 'This page is not a restaurant type page.'], 403);
+        }
+
+        $settings = $page->getOrCreateRestaurantSettings();
+
+        return response()->json([
+            'status' => true,
+            'data' => $settings,
+        ], 200);
+    }
+
+    /**
+     * Update restaurant settings for the specific page.
+     *
+     * PUT /api/pages/{page}/restaurant-settings
+     */
+    public function updateRestaurantSettings(Request $request, int $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        if ($page->pageType->slug !== 'restaurant') {
+            return response()->json(['status' => false, 'message' => 'This page is not a restaurant type page.'], 403);
+        }
+
+        $validated = $request->validate([
+            'currency' => 'nullable|string|max:10',
+            'currency_symbol' => 'nullable|string|max:10',
+            'currency_position' => 'nullable|string|in:before,after',
+            'opening_hours' => 'nullable|string',
+            'enable_orders' => 'nullable|boolean',
+            'enable_tables' => 'nullable|boolean',
+            'enable_delivery' => 'nullable|boolean',
+            'enable_takeaway' => 'nullable|boolean',
+            'hotline' => 'nullable|string|max:50',
+            'whatsapp_number' => 'required_if:receive_orders_on_whatsapp,1,true|nullable|string|regex:/^[1-9]\d{6,14}$/',
+            'receive_orders_on_whatsapp' => 'nullable|boolean',
+        ]);
+
+        $settings = $page->getOrCreateRestaurantSettings();
+        $settings->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Restaurant settings updated successfully.',
+            'data' => $settings,
         ], 200);
     }
 

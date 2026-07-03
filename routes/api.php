@@ -135,6 +135,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{page}', [PagesController::class, 'show'])->name('api.pages.show');
         Route::patch('/{page}', [PagesController::class, 'update'])->name('api.pages.update');
         Route::put('/{page}/status', [PagesController::class, 'updateStatus'])->name('api.pages.updateStatus');
+        Route::put('/{page}/restaurant-settings', [PagesController::class, 'updateRestaurantSettings'])->name('api.pages.updateRestaurantSettings');
+        Route::get('/{page}/restaurant-settings', [PagesController::class, 'getRestaurantSettings'])->name('api.pages.getRestaurantSettings');
     });
 
     // Social Platforms & Links
