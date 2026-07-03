@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('restaurant_settings', function (Blueprint $table) {
             $table->string('whatsapp_number')->nullable()->after('hotline');
-            $table->boolean('receive_orders_on_whatsapp')->default(true)->after('whatsapp_number');
+            $table->boolean('receive_orders_on_whatsapp')->default(false)->after('whatsapp_number');
         });
     }
 
