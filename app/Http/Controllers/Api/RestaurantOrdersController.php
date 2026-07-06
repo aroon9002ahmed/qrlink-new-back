@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\RestaurantOrder;
+use App\Models\RestaurantShiftHandover;
+use App\Models\RestaurantDayClosure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RestaurantOrdersController extends Controller
@@ -237,15 +240,91 @@ class RestaurantOrdersController extends Controller
             return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
         }
 
-        RestaurantOrder::where('page_id', $page->id)
-            ->where('is_archived', false)
-            ->where('status', 'completed')
-            ->update(['is_archived' => true]);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Shift handed over successfully. All completed orders have been archived.',
+        $validator = Validator::make($request->all(), [
+            'cashier_name' => 'required|string|max:255',
+            'opening_cash' => 'required|numeric|min:0',
+            'total_cash' => 'required|numeric|min:0',
+            'next_opening_cash' => 'required|numeric|min:0',
+            'notes' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        if ($data['next_opening_cash'] > $data['total_cash']) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error.',
+                'errors' => [
+                    'next_opening_cash' => ['Next opening cash cannot exceed total cash in drawer.'],
+                ],
+            ], 422);
+        }
+
+        try {
+            $handover = DB::transaction(function () use ($page, $data) {
+                // Fetch active completed orders locking them for update to avoid race conditions
+                $orders = RestaurantOrder::where('page_id', $page->id)
+                    ->where('is_archived', false)
+                    ->where('status', 'completed')
+                    ->lockForUpdate()
+                    ->get();
+
+                $systemSales = $orders->sum('total_price');
+                $expectedTotal = round(floatval($data['opening_cash']) + floatval($systemSales), 2);
+                $totalCash = round(floatval($data['total_cash']), 2);
+                $cashDifference = round($totalCash - $expectedTotal, 2);
+
+                if ($cashDifference != 0.0) {
+                    throw new \InvalidArgumentException('Shift handover rejected: Total cash in drawer (' . $totalCash . ') does not match expected amount (' . $expectedTotal . ').');
+                }
+
+                // Create handover record
+                $handoverRecord = RestaurantShiftHandover::create([
+                    'page_id' => $page->id,
+                    'cashier_name' => $data['cashier_name'],
+                    'opening_cash' => $data['opening_cash'],
+                    'system_sales' => $systemSales,
+                    'total_cash' => $data['total_cash'],
+                    'next_opening_cash' => $data['next_opening_cash'],
+                    'cash_difference' => $cashDifference,
+                    'notes' => $data['notes'] ?? null,
+                ]);
+
+                // Archive only the specific orders included in the calculation
+                if ($orders->isNotEmpty()) {
+                    RestaurantOrder::whereIn('id', $orders->pluck('id'))->update(['is_archived' => true]);
+                }
+
+                return $handoverRecord;
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Shift handed over successfully.',
+                'data' => $handover,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error.',
+                'errors' => [
+                    'total_cash' => [$e->getMessage()],
+                ],
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred during shift handover: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -258,7 +337,22 @@ class RestaurantOrdersController extends Controller
             return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
         }
 
-        // Check for any uncompleted/active orders
+        $validator = Validator::make($request->all(), [
+            'manager_name' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        // Check for any uncompleted/active orders (pending, confirmed, preparing)
         $activeCount = RestaurantOrder::where('page_id', $page->id)
             ->where('is_archived', false)
             ->whereIn('status', ['pending', 'confirmed', 'preparing'])
@@ -271,14 +365,103 @@ class RestaurantOrdersController extends Controller
             ], 422);
         }
 
-        // Archive all remaining orders (completed, delivered, cancelled)
-        RestaurantOrder::where('page_id', $page->id)
-            ->where('is_archived', false)
-            ->update(['is_archived' => true]);
+        try {
+            $closure = DB::transaction(function () use ($page, $request, $data) {
+                // Get all non-archived orders to sum them up before archiving
+                $orders = RestaurantOrder::where('page_id', $page->id)
+                    ->where('is_archived', false)
+                    ->lockForUpdate()
+                    ->get();
+
+                $totalOrders = $orders->count();
+                $cashSales = $orders->where('payment_method', 'cash')->sum('total_price');
+                $cardSales = $orders->where('payment_method', '!=', 'cash')->sum('total_price');
+                $totalSales = $orders->sum('total_price');
+
+                // Create day closure entry
+                $closureRecord = RestaurantDayClosure::create([
+                    'page_id' => $page->id,
+                    'user_id' => $request->user()->id,
+                    'manager_name' => $data['manager_name'] ?? null,
+                    'total_orders' => $totalOrders,
+                    'total_sales' => $totalSales,
+                    'cash_sales' => $cashSales,
+                    'card_sales' => $cardSales,
+                    'notes' => $data['notes'] ?? null,
+                ]);
+
+                // Archive all remaining orders
+                if ($orders->isNotEmpty()) {
+                    RestaurantOrder::whereIn('id', $orders->pluck('id'))->update(['is_archived' => true]);
+                }
+
+                return $closureRecord;
+            });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Business day closed successfully. All orders have been archived.',
+                'data' => $closure,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred during closing day: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get list of shift handovers for the specific page.
+     */
+    public function handovers(Request $request, $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        $query = RestaurantShiftHandover::where('page_id', $page->id);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->query('start_date'));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->query('end_date'));
+        }
+
+        $handovers = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status' => true,
-            'message' => 'Day closed successfully. All orders have been archived.',
+            'data' => $handovers,
+        ]);
+    }
+
+    /**
+     * Get list of day closures for the specific page.
+     */
+    public function closures(Request $request, $pageId): JsonResponse
+    {
+        $page = $request->user()->pages()->find($pageId);
+        if (! $page) {
+            return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
+        }
+
+        $query = RestaurantDayClosure::where('page_id', $page->id);
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->query('start_date'));
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->query('end_date'));
+        }
+
+        $closures = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $closures,
         ]);
     }
 

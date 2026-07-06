@@ -9,7 +9,7 @@ class RestaurantOrder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['page_id', 'table_id', 'type', 'customer_name', 'customer_phone', 'customer_address', 'branch_id', 'status', 'total_price'];
+    protected $fillable = ['page_id', 'table_id', 'type', 'customer_name', 'customer_phone', 'customer_address', 'branch_id', 'status', 'total_price', 'payment_method'];
 
     public function page()
     {
