@@ -12,6 +12,11 @@ class ShortCodeInfolist
         return $schema
             ->components([
                 TextEntry::make('code'),
+                TextEntry::make('codeable.original_url')
+                    ->label('Original URL')
+                    ->url(fn($record) => $record->codeable?->original_url)
+                    ->openUrlInNewTab()
+                    ->placeholder('-'),
                 TextEntry::make('code')
                     ->label('Live URL')
                     ->url(fn($record) => env('APP_URL') . "/" . $record->code)
