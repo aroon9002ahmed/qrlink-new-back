@@ -86,7 +86,7 @@ class PagesController extends Controller
             ->get();
 
         // 3. Blocks
-        $blocks = $page->blocks()->get();
+        $blocks = $page->blocks()->with('blockType')->get();
 
         // 4. Restaurant Menu
         $restaurantMenu = [];
@@ -237,7 +237,7 @@ class PagesController extends Controller
             ->get();
 
         // 3. Blocks
-        $blocks = $page->blocks()->get();
+        $blocks = $page->blocks()->with('blockType')->get();
 
         // 4. Restaurant Menu
         $restaurantMenu = [];

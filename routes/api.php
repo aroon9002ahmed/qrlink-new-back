@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\ResetPasswordController;
 use App\Http\Controllers\Api\Auth\SocialLoginController;
 use App\Http\Controllers\Api\Auth\VerifyEmailController;
 use App\Http\Controllers\Api\BannersController;
+use App\Http\Controllers\Api\BlocksController;
 use App\Http\Controllers\Api\BranchesController;
 use App\Http\Controllers\Api\CodeController;
 use App\Http\Controllers\Api\ConfigurationController;
@@ -215,6 +216,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [QrcodesController::class, 'store'])->name('api.qrcodes.store');
         Route::put('/{qrcode}', [QrcodesController::class, 'update'])->name('api.qrcodes.update');
         Route::delete('/{qrcode}', [QrcodesController::class, 'destroy'])->name('api.qrcodes.destroy');
+    });
+
+    // Blocks
+    Route::get('block-types', [BlocksController::class, 'blockTypes'])->name('api.blocks.types');
+    Route::prefix('pages/{page}/blocks')->group(function () {
+        Route::get('/', [BlocksController::class, 'index'])->name('api.blocks.index');
+        Route::post('/', [BlocksController::class, 'store'])->name('api.blocks.store');
+        Route::post('/reorder', [BlocksController::class, 'reorder'])->name('api.blocks.reorder');
+        Route::match(['post', 'put'], '/{block}', [BlocksController::class, 'update'])->name('api.blocks.update');
+        Route::delete('/{block}', [BlocksController::class, 'destroy'])->name('api.blocks.destroy');
     });
 
     // Templates (Protected)
