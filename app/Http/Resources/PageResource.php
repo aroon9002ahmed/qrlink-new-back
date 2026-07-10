@@ -42,6 +42,7 @@ class PageResource extends JsonResource
             'template' => $this->whenLoaded('template', fn() => [
                 'id'            => $this->template->id,
                 'name'          => $this->template->name,
+                'slug'          => $this->template->slug,
                 'description'   => $this->template->description,
                 'preview_image' => $this->template->preview_image
                     ? (str_starts_with($this->template->preview_image, 'images/templates/cache/')
