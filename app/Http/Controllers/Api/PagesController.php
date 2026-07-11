@@ -90,7 +90,7 @@ class PagesController extends Controller
 
         // 4. Restaurant Menu
         $restaurantMenu = [];
-        if ($page->pageType->slug == 'restaurant') {
+        if ($page->pageType->has_products) {
             $restaurantCategories = RestaurantMenuCategory::where('page_id', $page->id)
                 ->with(['items' => function ($query) {
                     $query->where('is_available', true); // Only load available items
@@ -241,7 +241,7 @@ class PagesController extends Controller
 
         // 4. Restaurant Menu
         $restaurantMenu = [];
-        if ($page->pageType->slug == 'restaurant') {
+        if ($page->pageType->has_products) {
             $restaurantCategories = RestaurantMenuCategory::where('page_id', $page->id)
                 ->with(['items' => function ($query) {
                     $query->where('is_available', true); // Only load available items
@@ -253,7 +253,7 @@ class PagesController extends Controller
                     return $category->items->count() > 0;
                 });
 
-            $restaurantSettings = $page->restaurantSettings;
+            $restaurantSettings = $page->getOrCreateRestaurantSettings();
 
             // Format restaurant settings properties (price formatting closure is handled client-side)
             $formattedSettings = null;
@@ -568,8 +568,8 @@ class PagesController extends Controller
             return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
         }
 
-        if ($page->pageType->slug !== 'restaurant') {
-            return response()->json(['status' => false, 'message' => 'This page is not a restaurant type page.'], 403);
+        if (!$page->pageType->has_products) {
+            return response()->json(['status' => false, 'message' => 'This page type does not support store/restaurant settings.'], 403);
         }
 
         $settings = $page->getOrCreateRestaurantSettings();
@@ -592,8 +592,8 @@ class PagesController extends Controller
             return response()->json(['status' => false, 'message' => 'Page not found.'], 404);
         }
 
-        if ($page->pageType->slug !== 'restaurant') {
-            return response()->json(['status' => false, 'message' => 'This page is not a restaurant type page.'], 403);
+        if (!$page->pageType->has_products) {
+            return response()->json(['status' => false, 'message' => 'This page type does not support store/restaurant settings.'], 403);
         }
 
         $validated = $request->validate([
@@ -750,14 +750,14 @@ class PagesController extends Controller
             $page = Page::create($validated);
 
             $pageType = $page->pageType;
-            if ($pageType && $pageType->slug === 'restaurant') {
+            if ($pageType && $pageType->has_products) {
                 RestaurantSettings::create([
                     'page_id' => $page->id,
                     'currency' => 'EGP',
                     'currency_symbol' => 'ج.م',
                     'currency_position' => 'after',
                     'enable_orders' => true,
-                    'enable_tables' => true,
+                    'enable_tables' => (bool)$pageType->has_tables,
                     'enable_takeaway' => true,
                     'enable_delivery' => true,
                 ]);

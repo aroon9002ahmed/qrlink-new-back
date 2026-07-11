@@ -30,6 +30,12 @@ class PageTypeResource extends JsonResource
             'name_translations'      => $this->getTranslations('name'),
             'description_translations' => $this->getTranslations('description'),
             'status'                 => (bool) $this->status,
+            'has_banners'            => (bool) $this->has_banners,
+            'has_social_media'       => (bool) $this->has_social_media,
+            'has_branches'           => (bool) $this->has_branches,
+            'has_products'           => (bool) $this->has_products,
+            'has_orders'             => (bool) $this->has_orders,
+            'has_tables'             => (bool) $this->has_tables,
             'created_at'             => $this->created_at?->toIso8601String(),
             'updated_at'             => $this->updated_at?->toIso8601String(),
         ];

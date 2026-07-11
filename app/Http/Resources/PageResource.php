@@ -36,6 +36,12 @@ class PageResource extends JsonResource
                         ? Storage::disk('public')->url($this->pageType->icon)
                         : Storage::disk('public')->url('images/pageTypes/cache/' . $this->pageType->icon))
                     : null,
+                'has_banners'      => (bool) $this->pageType->has_banners,
+                'has_social_media' => (bool) $this->pageType->has_social_media,
+                'has_branches'     => (bool) $this->pageType->has_branches,
+                'has_products'     => (bool) $this->pageType->has_products,
+                'has_orders'       => (bool) $this->pageType->has_orders,
+                'has_tables'       => (bool) $this->pageType->has_tables,
             ], $this->type), // fallback to raw type value if not loaded
 
             // Template information

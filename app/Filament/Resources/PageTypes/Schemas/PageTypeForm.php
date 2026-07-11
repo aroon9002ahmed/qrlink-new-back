@@ -89,6 +89,17 @@ class PageTypeForm
                     }),
                 Toggle::make('status')
                     ->required(),
+                \Filament\Schemas\Components\Section::make('Active Services & Features')
+                    ->description('Determine which features are enabled for this page type.')
+                    ->schema([
+                        Toggle::make('has_banners')->label('Banners'),
+                        Toggle::make('has_social_media')->label('Social Media'),
+                        Toggle::make('has_branches')->label('Branches'),
+                        Toggle::make('has_products')->label('Products'),
+                        Toggle::make('has_orders')->label('Orders'),
+                        Toggle::make('has_tables')->label('Tables (Dine-In)'),
+                    ])
+                    ->columns(3),
             ]);
     }
 

@@ -16,6 +16,22 @@ class PageType extends Model
         'description', // وصف مختصر لنوع الصفحة
         'icon',        // أيقونة اختيارية (لو حابب تعرضها في الـ dashboard)
         'status',      // الحالة (نشط أم غير نشط)
+        'has_banners',
+        'has_social_media',
+        'has_branches',
+        'has_products',
+        'has_orders',
+        'has_tables',
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
+        'has_banners' => 'boolean',
+        'has_social_media' => 'boolean',
+        'has_branches' => 'boolean',
+        'has_products' => 'boolean',
+        'has_orders' => 'boolean',
+        'has_tables' => 'boolean',
     ];
 
     public $translatable = ['name', 'description'];

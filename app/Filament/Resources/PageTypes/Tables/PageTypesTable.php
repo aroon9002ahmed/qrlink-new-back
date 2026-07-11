@@ -37,6 +37,30 @@ class PageTypesTable
                 IconColumn::make('status')
                     ->label('Status')
                     ->boolean(),
+                IconColumn::make('has_banners')
+                    ->label('Banners')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('has_social_media')
+                    ->label('Social Media')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('has_branches')
+                    ->label('Branches')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('has_products')
+                    ->label('Products')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('has_orders')
+                    ->label('Orders')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                IconColumn::make('has_tables')
+                    ->label('Tables')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

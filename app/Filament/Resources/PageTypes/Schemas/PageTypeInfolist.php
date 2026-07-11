@@ -30,6 +30,24 @@ class PageTypeInfolist
                     ->placeholder('-'),
                 IconEntry::make('status')
                     ->boolean(),
+                IconEntry::make('has_banners')
+                    ->label('Banners')
+                    ->boolean(),
+                IconEntry::make('has_social_media')
+                    ->label('Social Media')
+                    ->boolean(),
+                IconEntry::make('has_branches')
+                    ->label('Branches')
+                    ->boolean(),
+                IconEntry::make('has_products')
+                    ->label('Products')
+                    ->boolean(),
+                IconEntry::make('has_orders')
+                    ->label('Orders')
+                    ->boolean(),
+                IconEntry::make('has_tables')
+                    ->label('Tables')
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
