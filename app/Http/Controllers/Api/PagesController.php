@@ -102,7 +102,7 @@ class PagesController extends Controller
                     return $category->items->count() > 0;
                 });
 
-            $restaurantSettings = $page->restaurantSettings;
+            $restaurantSettings = $page->getOrCreateRestaurantSettings();
 
             // Format restaurant settings properties (price formatting closure is handled client-side)
             $formattedSettings = null;
