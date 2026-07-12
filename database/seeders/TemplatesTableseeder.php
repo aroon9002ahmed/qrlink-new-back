@@ -79,11 +79,27 @@ class TemplatesTableseeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => [
+                    'en' => 'Cozy Cafe',
+                    'ar' => 'كافيه دافئ'
+                ],
+                'slug' => 'cozy-cafe',
+                'description' => [
+                    'en' => 'A warm and cozy coffee shop template with earthy tones.',
+                    'ar' => 'قالب كافيه دافئ ومريح بألوان ترابية هادئة.'
+                ],
+                'preview_image' => 'templates/cozy_cafe.png',
+                'page_type_id' => 2,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
 
         ];
 
         foreach ($templates as $template) {
-            Template::create($template);
+            Template::updateOrCreate(['slug' => $template['slug']], $template);
         }
     }
 }
