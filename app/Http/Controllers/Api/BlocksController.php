@@ -75,7 +75,9 @@ class BlocksController extends Controller
             $path = 'upload/blocks/' . $filename;
 
             if (str_starts_with($file->getMimeType(), 'image/')) {
-                $this->resizeAndSaveImage($file->getRealPath(), $path, 800, 800);
+                $maxWidth = str_starts_with($key, 'image_prod_') ? 250 : 800;
+                $maxHeight = str_starts_with($key, 'image_prod_') ? 250 : 800;
+                $this->resizeAndSaveImage($file->getRealPath(), $path, $maxWidth, $maxHeight);
             } else {
                 Storage::disk('public')->putFileAs('upload/blocks', $file, $filename, 'public');
             }
@@ -151,10 +153,10 @@ class BlocksController extends Controller
             if ($request->input('remove_image_keys')) {
                 $removeKeys = (array) $request->input('remove_image_keys');
                 foreach ($removeKeys as $key) {
-                    if (isset($newSettings[$key]) && is_string($newSettings[$key])) {
-                        Storage::disk('public')->delete($newSettings[$key]);
-                        $newSettings[$key] = null;
+                    if (isset($currentSettings[$key]) && is_string($currentSettings[$key])) {
+                        Storage::disk('public')->delete($currentSettings[$key]);
                     }
+                    $newSettings[$key] = null;
                 }
             }
 
@@ -169,7 +171,9 @@ class BlocksController extends Controller
                 $path = 'upload/blocks/' . $filename;
 
                 if (str_starts_with($file->getMimeType(), 'image/')) {
-                    $this->resizeAndSaveImage($file->getRealPath(), $path, 800, 800);
+                    $maxWidth = str_starts_with($key, 'image_prod_') ? 250 : 800;
+                    $maxHeight = str_starts_with($key, 'image_prod_') ? 250 : 800;
+                    $this->resizeAndSaveImage($file->getRealPath(), $path, $maxWidth, $maxHeight);
                 } else {
                     Storage::disk('public')->putFileAs('upload/blocks', $file, $filename, 'public');
                 }
@@ -318,6 +322,18 @@ class BlocksController extends Controller
             return;
         }
 
+        $origWidth = imagesx($source);
+        $origHeight = imagesy($source);
+
+        $maxWidth = $targetWidth;
+        if ($origWidth > $maxWidth) {
+            $targetWidth = $maxWidth;
+            $targetHeight = (int) round(($origHeight * $maxWidth) / $origWidth);
+        } else {
+            $targetWidth = $origWidth;
+            $targetHeight = $origHeight;
+        }
+
         $targetImage = imagecreatetruecolor($targetWidth, $targetHeight);
 
         if ($mime === 'image/png' || $mime === 'image/webp') {
@@ -326,9 +342,6 @@ class BlocksController extends Controller
             $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
             imagefilledrectangle($targetImage, 0, 0, $targetWidth, $targetHeight, $transparent);
         }
-
-        $origWidth = imagesx($source);
-        $origHeight = imagesy($source);
 
         imagecopyresampled(
             $targetImage,

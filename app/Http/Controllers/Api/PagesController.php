@@ -436,7 +436,7 @@ class PagesController extends Controller
             $file = $request->file('image_path');
             $filename = $page->slug.'_'.$page->id.'_'.now()->format('Ymd_His').'.'.$file->getClientOriginalExtension();
             $path = 'upload/logo/'.$filename;
-            $this->resizeAndSaveImage($file->getRealPath(), $path, 118, 118);
+            $this->resizeAndSaveImage($file->getRealPath(), $path, 200, 200);
             $updateData['image_path'] = $path;
         }
 
