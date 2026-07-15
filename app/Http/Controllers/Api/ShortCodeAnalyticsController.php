@@ -21,7 +21,6 @@ class ShortCodeAnalyticsController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        dd($request->all());
         // Validate request input
         $request->validate([
             'short_code_id' => 'required_without:code|nullable|integer|exists:short_codes,id',
