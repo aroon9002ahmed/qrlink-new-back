@@ -34,7 +34,9 @@ class ShortCodeAnalyticsController extends Controller
         }
         // Resolve the real client IP, bypassing proxy/load-balancer addresses
         $ip = null;
-        if ($request->hasHeader('CF-Connecting-IP')) {
+        if ($request->hasHeader('X-Visitor-Ip')) {
+            $ip = $request->header('X-Visitor-Ip');
+        } elseif ($request->hasHeader('CF-Connecting-IP')) {
             $ip = $request->header('CF-Connecting-IP');
         } elseif ($request->hasHeader('X-Forwarded-For')) {
             $forwarded = $request->header('X-Forwarded-For');
