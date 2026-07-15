@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\RestaurantOrdersController;
 use App\Http\Controllers\Api\RestaurantTablesController;
 use App\Http\Controllers\Api\SubscriptionPlansController;
 use App\Http\Controllers\Api\TemplatesController;
+use App\Http\Controllers\Api\ShortCodeAnalyticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,9 @@ Route::prefix('auth')->group(function () {
 Route::get('/r/{code}', [CodeController::class, 'resolve'])->name('api.resolve');
 
 Route::post('/codes/report', [CodeController::class, 'report'])->middleware('throttle:5,1')->name('api.codes.report');
+
+// Short Code Scan Analytics (Public Scan Tracking)
+Route::post('/short-code-analytics', [ShortCodeAnalyticsController::class, 'store'])->name('api.short-code-analytics.store');
 
 // Subscription Plans
 Route::get('/subscription-plans', [SubscriptionPlansController::class, 'index'])->name('api.subscription-plans.index');
@@ -233,4 +237,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [TemplatesController::class, 'index'])->name('api.templates.index');
         Route::get('/page-type/{page_type_id}', [TemplatesController::class, 'byPageType'])->name('api.templates.byPageType');
     });
+
+    // Short Code Scan Analytics (Protected Viewer)
+    Route::get('/short-code-analytics', [ShortCodeAnalyticsController::class, 'index'])->name('api.short-code-analytics.index');
 });

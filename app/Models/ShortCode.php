@@ -43,6 +43,14 @@ class ShortCode extends Model
     }
 
     /**
+     * Get the analytics for this short code.
+     */
+    public function analytics(): HasMany
+    {
+        return $this->hasMany(ShortCodeAnalytic::class);
+    }
+
+    /**
      * Generate a globally unique short code (checks the short_codes table only).
      */
     public static function generateUnique(int $length = 8): string

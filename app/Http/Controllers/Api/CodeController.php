@@ -50,9 +50,6 @@ class CodeController extends Controller
             ], 400);
         }
 
-        // 4. Increment the clicks/scans count
-        $shortCode->increment('clicks');
-
         // Push the refreshed/updated shortCode relation back into the model
         $model->setRelation('shortCodeRelation', $shortCode);
 
