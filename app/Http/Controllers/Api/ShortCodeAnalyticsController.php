@@ -32,7 +32,20 @@ class ShortCodeAnalyticsController extends Controller
         } else {
             $shortCodeId = ShortCode::where('code', $request->input('code'))->value('id');
         }
-        $ip = $request->ip();
+        // Resolve the real client IP, bypassing proxy/load-balancer addresses
+        $ip = null;
+        if ($request->hasHeader('CF-Connecting-IP')) {
+            $ip = $request->header('CF-Connecting-IP');
+        } elseif ($request->hasHeader('X-Forwarded-For')) {
+            $forwarded = $request->header('X-Forwarded-For');
+            $ips = array_map('trim', explode(',', $forwarded));
+            $ip = $ips[0] ?? null;
+        } elseif ($request->hasHeader('X-Real-IP')) {
+            $ip = $request->header('X-Real-IP');
+        } else {
+            $ip = $request->ip();
+        }
+
         $userAgent = $request->userAgent();
         $country = null;
         $city = null;
