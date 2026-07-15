@@ -21,6 +21,7 @@ class ShortCodeAnalyticsController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        dd($request->all());
         // Validate request input
         $request->validate([
             'short_code_id' => 'required_without:code|nullable|integer|exists:short_codes,id',
@@ -81,7 +82,6 @@ class ShortCodeAnalyticsController extends Controller
                 'status'  => true,
                 'message' => 'Scan tracked successfully.',
             ], 201);
-
         } catch (\Exception $e) {
             Log::error('Failed to store scan analytic or increment clicks: ' . $e->getMessage());
 
