@@ -297,29 +297,29 @@ class RestaurantMenuSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        RestaurantMenuItem::create([
-            'category_id' => 6,
-            'page_id' => 1,
-            'name' => 'Pepsi',
-            'price' => 14,
-            // 'description' => 'Pepsi',
-            'image' => '',
-            'position' => 2,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // RestaurantMenuItem::create([
+        //     'category_id' => 6,
+        //     'page_id' => 1,
+        //     'name' => 'Pepsi',
+        //     'price' => 14,
+        //     // 'description' => 'Pepsi',
+        //     'image' => '',
+        //     'position' => 2,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
-        RestaurantMenuItem::create([
-            'category_id' => 6,
-            'page_id' => 1,
-            'name' => 'Sprite',
-            'price' => 12,
-            // 'description' => 'Sprite',
-            'image' => '',
-            'position' => 3,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // RestaurantMenuItem::create([
+        //     'category_id' => 6,
+        //     'page_id' => 1,
+        //     'name' => 'Sprite',
+        //     'price' => 12,
+        //     // 'description' => 'Sprite',
+        //     'image' => '',
+        //     'position' => 3,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
         RestaurantMenuItem::create([
             'category_id' => 6,
@@ -366,15 +366,15 @@ class RestaurantMenuSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        RestaurantMenuItem::create([
-            'category_id' => 7,
-            'page_id' => 1,
-            'name' => 'قهوة تركي',
-            'price' => 14,
-            'image' => '',
-            'position' => 2,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // RestaurantMenuItem::create([
+        //     'category_id' => 7,
+        //     'page_id' => 1,
+        //     'name' => 'قهوة تركي',
+        //     'price' => 14,
+        //     'image' => '',
+        //     'position' => 2,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
     }
 }
