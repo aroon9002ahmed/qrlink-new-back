@@ -27,19 +27,7 @@ class UserSubscriptionResource extends JsonResource
             'payment_method' => $this->payment_method,
             'transaction_id' => $this->transaction_id,
             'plan'           => $this->relationLoaded('subscriptionPlan') && $this->subscriptionPlan
-                ? [
-                    'id'                  => $this->subscriptionPlan->id,
-                    'name'                => $this->subscriptionPlan->getTranslations('name'),
-                    'slug'                => $this->subscriptionPlan->slug,
-                    'max_qrcodes'        => $this->subscriptionPlan->max_qrcodes,
-                    'max_links'           => $this->subscriptionPlan->max_links,
-                    'max_pages'           => $this->subscriptionPlan->max_pages,
-                    'max_items'           => $this->subscriptionPlan->max_items,
-                    'max_blocks_per_page' => $this->subscriptionPlan->max_blocks_per_page,
-                    'custom_domain'       => (bool) $this->subscriptionPlan->custom_domain,
-                    'analytics'           => (bool) $this->subscriptionPlan->analytics,
-                    'priority_support'    => (bool) $this->subscriptionPlan->priority_support,
-                ]
+                ? new SubscriptionPlanResource($this->subscriptionPlan)
                 : null,
         ];
     }
