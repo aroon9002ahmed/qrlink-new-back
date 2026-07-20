@@ -36,6 +36,9 @@ class SubscriptionPlansTable
                 TextColumn::make('max_pages')
                     ->numeric()
                     ->sortable(),
+                IconColumn::make('fast_redirect')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_active')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
