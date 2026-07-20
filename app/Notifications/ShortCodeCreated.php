@@ -48,7 +48,8 @@ class ShortCodeCreated extends Notification
             default => strtolower(class_basename($this->codeableType)) . 's',
         };
 
-        $url = env('APP_URL') . "/dashboard/" . $type . "/" . $this->codeableId . "/show";
+        $frontendUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
+        $url = $frontendUrl . "/dashboard/" . $type . "/" . $this->codeableId . "/show";
         $typeName = $type === 'links' ? 'Link' : 'QR Code';
 
         return (new MailMessage)

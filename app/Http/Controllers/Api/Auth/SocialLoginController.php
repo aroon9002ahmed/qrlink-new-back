@@ -134,7 +134,7 @@ class SocialLoginController extends Controller
             'name'      => $user->name,
             'email'     => $user->email,
             'password'  => $password,
-            'login_url' => env('APP_URL') . '/auth/login',
+            'login_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/') . '/auth/login',
         ];
 
         try {
