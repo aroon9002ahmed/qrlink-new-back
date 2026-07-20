@@ -89,6 +89,8 @@ class SubscriptionPlanForm
                     ->required(),
                 Toggle::make('turn_off_Branding')
                     ->required(),
+                Toggle::make('fast_redirect')
+                    ->required(),
                 Toggle::make('analytics')
                     ->required(),
                 Toggle::make('priority_support')
