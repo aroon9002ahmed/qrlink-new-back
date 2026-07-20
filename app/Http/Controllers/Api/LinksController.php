@@ -78,6 +78,17 @@ class LinksController extends Controller
             'fast_redirect' => 'nullable|boolean',
         ]);
 
+        $user = $request->user();
+        $plan = $user->getUserPlan;
+        $maxLinks = $plan ? $plan->max_links : 10;
+
+        if ($user->links()->count() >= $maxLinks) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You have reached the maximum allowed links limit for your subscription plan.',
+            ], 403);
+        }
+
         $originalUrl = $request->input('original_url') ?: $request->input('url');
 
         $this->checkDomainBlacklist($originalUrl);
@@ -85,7 +96,7 @@ class LinksController extends Controller
         $urlHash = hash('sha256', $originalUrl);
 
         // Check if user already has a shortened link for this URL
-        $existingLink = $request->user()->links()->with('shortCodeRelation')->where('url_hash', $urlHash)->first();
+        $existingLink = $user->links()->with('shortCodeRelation')->where('url_hash', $urlHash)->first();
         if ($existingLink) {
             return response()->json([
                 'status' => true,
@@ -95,7 +106,7 @@ class LinksController extends Controller
 
         // ShortCode is generated automatically by HasShortCode boot
         $link = Link::create([
-            'user_id'       => $request->user()->id,
+            'user_id'       => $user->id,
             'title'         => $request->input('title') ?: $request->input('name'),
             'original_url'  => $originalUrl,
             'url_hash'      => $urlHash,

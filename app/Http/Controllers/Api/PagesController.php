@@ -743,7 +743,18 @@ class PagesController extends Controller
             'template_id' => 'required|integer|exists:templates,id',
         ]);
 
-        $validated['user_id'] = $request->user()->id;
+        $user = $request->user();
+        $plan = $user->getUserPlan;
+        $maxPages = $plan ? $plan->max_pages : 1;
+
+        if ($user->pages()->count() >= $maxPages) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You have reached the maximum allowed pages limit for your subscription plan.',
+            ], 403);
+        }
+
+        $validated['user_id'] = $user->id;
         $validated['status'] = 1;
 
         $page = DB::transaction(function () use ($validated) {

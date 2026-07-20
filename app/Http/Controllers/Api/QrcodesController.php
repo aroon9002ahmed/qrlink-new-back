@@ -76,13 +76,24 @@ class QrcodesController extends Controller
             'fast_redirect' => 'nullable|boolean',
         ]);
 
+        $user = $request->user();
+        $plan = $user->getUserPlan;
+        $maxQrcodes = $plan ? $plan->max_qrcodes : 3;
+
+        if ($user->qrcodes()->count() >= $maxQrcodes) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You have reached the maximum allowed QR Codes limit for your subscription plan.',
+            ], 403);
+        }
+
         $url = $request->input('original_url') ?? $request->input('url') ?? $request->input('originalUrl');
 
         $this->checkDomainBlacklist($url);
 
         // ShortCode is generated automatically by HasShortCode boot
         $qrcode = Qrcode::create([
-            'user_id'       => $request->user()->id,
+            'user_id'       => $user->id,
             'title'         => $request->input('title'),
             'original_url'  => $url,
             'is_active'     => $request->input('is_active', true),

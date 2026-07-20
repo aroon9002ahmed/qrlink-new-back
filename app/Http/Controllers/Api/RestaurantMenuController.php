@@ -250,6 +250,19 @@ class RestaurantMenuController extends Controller
             return response()->json(['status' => false, 'message' => 'Invalid category for this page.'], 422);
         }
 
+        $user = $request->user();
+        $plan = $user->getUserPlan;
+        $maxItems = $plan ? $plan->max_items : 10;
+        $categoryIds = RestaurantMenuCategory::where('page_id', $page->id)->pluck('id');
+        $totalItems = RestaurantMenuItem::whereIn('category_id', $categoryIds)->count();
+
+        if ($totalItems >= $maxItems) {
+            return response()->json([
+                'status'  => false,
+                'message' => "You have reached the maximum allowed items limit ({$maxItems}) for your subscription plan.",
+            ], 403);
+        }
+
         $maxPosition = RestaurantMenuItem::where('category_id', $category->id)->max('position') ?? 0;
 
         $path = null;
