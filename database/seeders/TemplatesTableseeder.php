@@ -15,6 +15,7 @@ class TemplatesTableseeder extends Seeder
     public function run(): void
     {
         $templates = [
+            // Profile Templates (page_type_id: 1)
             [
                 'name' => [
                     'en' => 'Blue Sky',
@@ -26,7 +27,7 @@ class TemplatesTableseeder extends Seeder
                     'ar' => 'قالب صفحة ملف شخصي جميل وهادئ.'
                 ],
                 'preview_image' => 'templates/profile1.png',
-                'page_type_id' => 1, // Assuming 1 is the ID for 'profile' in page_types table
+                'page_type_id' => 1,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -42,11 +43,29 @@ class TemplatesTableseeder extends Seeder
                     'ar' => 'قالب صفحة ملف شخصي حديث وأنيق.'
                 ],
                 'preview_image' => 'templates/profile1.png',
-                'page_type_id' => 1, // Assuming 1 is the ID for 'profile' in page_types table
+                'page_type_id' => 1,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'name' => [
+                    'en' => 'Dark Aqua',
+                    'ar' => 'أكوا الداكن'
+                ],
+                'slug' => 'dark-aqua',
+                'description' => [
+                    'en' => 'A sleek and elegant dark aqua themed profile page template.',
+                    'ar' => 'قالب صفحة ملف شخصي بلون أكوا الداكن الأنيق.'
+                ],
+                'preview_image' => 'templates/profile2.png',
+                'page_type_id' => 1,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Restaurant Templates (page_type_id: 2)
             [
                 'name' => [
                     'en' => 'Blue Restaurant',
@@ -58,23 +77,55 @@ class TemplatesTableseeder extends Seeder
                     'ar' => 'قالب صفحة مطعم نابض بالحياة وجذاب.'
                 ],
                 'preview_image' => 'templates/restaurant1.png',
-                'page_type_id' => 2, // Assuming 2 is the ID for 'restaurant' in page_types table
+                'page_type_id' => 2,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => [
-                    'en' => 'Blue Profile',
-                    'ar' => 'ملف شخصي أزرق'
+                    'en' => 'Classic Restaurant',
+                    'ar' => 'المطعم الكلاسيكي'
                 ],
-                'slug' => 'blue-profile',
+                'slug' => 'classic',
                 'description' => [
-                    'en' => 'A beautiful and serene profile page template.',
-                    'ar' => 'قالب صفحة ملف شخصي جميل وهادئ.'
+                    'en' => 'A clean, elegant, and classic restaurant menu layout.',
+                    'ar' => 'قالب منيو مطعم كلاسيكي، نظيف وأنيق.'
                 ],
-                'preview_image' => 'templates/profile2.png',
-                'page_type_id' => 1, // Assuming 1 is the ID for 'profile' in page_types table
+                'preview_image' => 'templates/restaurant1.png',
+                'page_type_id' => 2,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => [
+                    'en' => 'Modern Restaurant',
+                    'ar' => 'المطعم الحديث'
+                ],
+                'slug' => 'modern',
+                'description' => [
+                    'en' => 'A sleek, contemporary, and modern restaurant layout.',
+                    'ar' => 'تصميم منيو مطعم عصري وحديث وأنيق.'
+                ],
+                'preview_image' => 'templates/restaurant2.png',
+                'page_type_id' => 2,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => [
+                    'en' => 'Baby Blue Restaurant',
+                    'ar' => 'المطعم السماوي'
+                ],
+                'slug' => 'baby-blue',
+                'description' => [
+                    'en' => 'A soft, refreshing baby blue restaurant theme.',
+                    'ar' => 'قالب مطعم بلون أزرق سماوي ناعم ومريح.'
+                ],
+                'preview_image' => 'templates/restaurant1.png',
+                'page_type_id' => 2,
                 'status' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -96,10 +147,46 @@ class TemplatesTableseeder extends Seeder
                 'updated_at' => now(),
             ],
 
+            // Store Templates (page_type_id: 3)
+            [
+                'name' => [
+                    'en' => 'Pharmacy Store',
+                    'ar' => 'متجر صيدلية'
+                ],
+                'slug' => 'pharmacy',
+                'description' => [
+                    'en' => 'A professional and clean pharmacy and medical store layout.',
+                    'ar' => 'قالب صيدلية ومتجر مستلزمات طبية نظيف واحترافي.'
+                ],
+                'preview_image' => 'templates/store1.png',
+                'page_type_id' => 3,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => [
+                    'en' => 'Fashion Store',
+                    'ar' => 'متجر أزياء'
+                ],
+                'slug' => 'fashion',
+                'description' => [
+                    'en' => 'A trendy, stylish, and visual-focused fashion boutique template.',
+                    'ar' => 'قالب متجر أزياء وبوتيك عصري وجذاب بصرياً.'
+                ],
+                'preview_image' => 'templates/store2.png',
+                'page_type_id' => 3,
+                'status' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         foreach ($templates as $template) {
             Template::updateOrCreate(['slug' => $template['slug']], $template);
         }
+
+        // Clean up obsolete templates not in the frontend list
+        Template::whereNotIn('slug', array_column($templates, 'slug'))->delete();
     }
 }
