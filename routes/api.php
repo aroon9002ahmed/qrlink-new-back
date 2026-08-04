@@ -25,8 +25,11 @@ use App\Http\Controllers\Api\RestaurantTablesController;
 use App\Http\Controllers\Api\SubscriptionPlansController;
 use App\Http\Controllers\Api\TemplatesController;
 use App\Http\Controllers\Api\ShortCodeAnalyticsController;
+use App\Http\Controllers\Api\RedirectLookupController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::get('redirects/lookup', RedirectLookupController::class)->name('api.redirects.lookup');
 
 /*
 |--------------------------------------------------------------------------
